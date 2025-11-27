@@ -39,7 +39,7 @@ async def main():
 
     # 3. Initialize OpenAI client
     print("\n[3/6] Initializing OpenAI client...")
-    openai_client = OpenAIClient(model="gpt-4o-mini")  # Use mini for summaries
+    openai_client = OpenAIClient(model="gpt-5.1")  # Use gpt-5.1 for summaries
     print("✓ OpenAI client ready")
 
     # 4. Initialize ChromaDB (in-memory for testing)

@@ -10,6 +10,7 @@ RSAS is a sophisticated resume ranking system that processes hundreds of resumes
 
 - **8 Specialized Agents**: Job Understanding, Parser, Skills Extraction, Matching, Scoring, Ranking, Bias Check, and Output
 - **GPT-5.1 with High Reasoning**: Uses OpenAI's latest reasoning model for maximum accuracy
+- **Responses API + JSON Schema**: Structured outputs enforced via Responses API `response_format`
 - **Multi-Dimensional Scoring**: Technical skills, experience, education, culture fit, career trajectory
 - **Bias Detection**: Automated fairness analysis and recommendations
 - **Full Observability**: Complete trace storage for audit and debugging

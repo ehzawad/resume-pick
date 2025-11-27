@@ -2,7 +2,7 @@
 
 Orchestrates the complete ingestion process:
 1. Load candidates from database
-2. Generate summaries (gpt-4o-mini)
+2. Generate summaries (gpt-5.1)
 3. Generate embeddings (text-embedding-3-small)
 4. Index metadata for Tier 1 filtering
 5. Store in ChromaDB for Tier 2 semantic search
@@ -334,9 +334,8 @@ class KnowledgeBaseIngestionPipeline:
                 failed += 1
                 errors.append(f"Candidate {candidate_id}: {str(e)}")
 
-        # Calculate cost (rough estimate)
-        # gpt-4o-mini: ~$0.15/1M input, ~$0.60/1M output
-        summary_cost = (summary_tokens / 1_000_000) * 0.40  # Average of input/output
+        # Calculate cost (rough estimate for gpt-5.1)
+        summary_cost = (summary_tokens / 1_000_000) * 0.40  # Adjust if pricing changes
         # text-embedding-3-small: $0.02/1M tokens
         embedding_cost = (embedding_tokens / 1_000_000) * 0.02
         total_cost = summary_cost + embedding_cost

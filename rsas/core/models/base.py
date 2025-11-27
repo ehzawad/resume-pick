@@ -27,11 +27,6 @@ class RSASBaseModel(BaseModel):
         use_enum_values=True,
         # Strict type checking
         str_strip_whitespace=True,
-        # JSON serialization config
-        json_encoders={
-            datetime: lambda v: v.isoformat(),
-            uuid.UUID: lambda v: str(v),
-        },
     )
 
 

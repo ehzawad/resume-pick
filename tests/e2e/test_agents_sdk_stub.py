@@ -11,7 +11,7 @@ except ImportError:
 from rsas.core.storage.object_store import ObjectStore
 
 
-@pytest.mark.skipif(run_with_agents_sdk is None, reason="openai_agents not installed")
+@pytest.mark.skipif(run_with_agents_sdk is None, reason="agents SDK not installed")
 def test_agents_sdk_stub(tmp_path, monkeypatch):
     monkeypatch.setenv("RSAS_TEST_MODE", "1")
     store = ObjectStore(tmp_path / "store")

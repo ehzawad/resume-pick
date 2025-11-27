@@ -36,7 +36,7 @@ class OpenAIClient:
         Args:
             api_key: OpenAI API key (defaults to OPENAI_API_KEY env var)
             model: Default model to use
-            reasoning_effort: Reasoning effort level (low, medium, high)
+            reasoning_effort: Reasoning effort level (low, medium, high) mapped to Responses API `reasoning.effort`
             timeout: Request timeout in seconds
             max_retries: Maximum number of retries
         """
@@ -69,11 +69,12 @@ class OpenAIClient:
     )
     async def create_response(
         self,
-        input_text: str,
+        input_text: Any,
         response_model: Type[T],
         model: str | None = None,
         reasoning_effort: str | None = None,
         metadata: dict[str, Any] | None = None,
+        max_output_tokens: int | None = None,
     ) -> tuple[T, dict[str, Any]]:
         """Create a response using OpenAI Response API with structured output.
 
@@ -83,6 +84,7 @@ class OpenAIClient:
             model: Model to use (defaults to instance default)
             reasoning_effort: Reasoning effort (defaults to instance default)
             metadata: Additional metadata for the request
+            max_output_tokens: Optional cap on generated tokens
 
         Returns:
             Tuple of (parsed response, metadata including tokens used)
@@ -101,51 +103,56 @@ class OpenAIClient:
             "creating_response",
             model=model,
             reasoning_effort=reasoning_effort,
-            input_length=len(input_text),
+            input_length=len(str(input_text)),
         )
 
         try:
-            # Get JSON schema from Pydantic model
+            # Build JSON schema for response_format (Responses API)
             schema = response_model.model_json_schema()
+            response_format = {
+                "type": "json_schema",
+                "json_schema": {
+                    "name": response_model.__name__,
+                    "schema": schema,
+                    "strict": True,
+                },
+            }
 
-            # Enhance prompt to request JSON output
-            enhanced_input = f"""{input_text}
+            kwargs: dict[str, Any] = {
+                "model": model,
+                "input": input_text,
+                "response_format": response_format,
+                "metadata": metadata or {},
+            }
+            if reasoning_effort:
+                kwargs["reasoning"] = {"effort": reasoning_effort}
+            if max_output_tokens is not None:
+                kwargs["max_output_tokens"] = max_output_tokens
 
-IMPORTANT: Respond with valid JSON that matches this exact schema:
-{schema}
+            response = await self.client.responses.create(**kwargs)
 
-Respond ONLY with the JSON object, no additional text."""
+            # Extract structured output
+            parsed_payload: Any | None = None
+            text_payload: str | None = None
+            if response.output:
+                for item in response.output:
+                    content_list = getattr(item, "content", None) or []
+                    for content in content_list:
+                        if parsed_payload is None:
+                            parsed_payload = getattr(content, "parsed", None)
+                        if text_payload is None:
+                            text_payload = getattr(content, "text", None)
+                        if parsed_payload is not None:
+                            break
+                    if parsed_payload is not None:
+                        break
 
-            # Call OpenAI Response API
-            # Note: Response API does not support reasoning_effort parameter
-            response = await self.client.responses.create(
-                model=model,
-                input=enhanced_input,
-                metadata=metadata or {},
-            )
-
-            # Extract text output
-            output_text = response.output[0].content[0].text if response.output else ""
-
-            # Parse JSON from output
-            import json
-            try:
-                # Find JSON in output (handle potential markdown code blocks)
-                json_str = output_text.strip()
-                if json_str.startswith("```json"):
-                    json_str = json_str.split("```json")[1].split("```")[0].strip()
-                elif json_str.startswith("```"):
-                    json_str = json_str.split("```")[1].split("```")[0].strip()
-
-                # Parse to Pydantic model
-                parsed_output = response_model.model_validate_json(json_str)
-            except (json.JSONDecodeError, ValueError) as e:
-                logger.error(
-                    "json_parse_error",
-                    error=str(e),
-                    output_text=output_text[:500],  # Log first 500 chars
-                )
-                raise ValueError(f"Failed to parse JSON from GPT-5.1 response: {e}")
+            if parsed_payload is not None:
+                parsed_output = response_model.model_validate(parsed_payload)
+            elif text_payload:
+                parsed_output = response_model.model_validate_json(text_payload)
+            else:
+                raise ValueError("No output returned from Response API")
 
             # Extract usage stats
             usage_metadata = {
@@ -171,82 +178,6 @@ Respond ONLY with the JSON object, no additional text."""
                 model=model,
                 exc_info=True,
             )
-            raise
-
-    @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential(multiplier=1, min=2, max=10),
-        retry=retry_if_exception_type(OpenAIError),
-        reraise=True,
-    )
-    async def create_chat_completion(
-        self,
-        messages: list[dict[str, str]],
-        model: str | None = None,
-        temperature: float = 0.1,
-        max_tokens: int | None = None,
-        response_format: Type[T] | None = None,
-    ) -> tuple[str | T, dict[str, Any]]:
-        """Create a chat completion (fallback for non-Response API scenarios).
-
-        Args:
-            messages: List of message dicts with role and content
-            model: Model to use
-            temperature: Sampling temperature
-            max_tokens: Maximum tokens to generate
-            response_format: Optional Pydantic model for structured output
-
-        Returns:
-            Tuple of (response content or parsed model, metadata)
-        """
-        model = model or self.model
-
-        if self.test_mode:
-            if response_format:
-                return self._fabricate_model(response_format), {"tokens_total": 0, "model": model, "mock": True}
-            return "mock-response", {"tokens_total": 0, "model": model, "mock": True}
-
-        logger.info("creating_chat_completion", model=model, messages_count=len(messages))
-
-        try:
-            if response_format:
-                # Use beta parse method for structured outputs
-                completion = await self.client.beta.chat.completions.parse(
-                    model=model,
-                    messages=messages,
-                    temperature=temperature,
-                    max_tokens=max_tokens,
-                    response_format=response_format,
-                )
-                content = completion.choices[0].message.parsed
-            else:
-                # Regular completion
-                completion = await self.client.chat.completions.create(
-                    model=model,
-                    messages=messages,
-                    temperature=temperature,
-                    max_tokens=max_tokens,
-                )
-                content = completion.choices[0].message.content
-
-            usage_metadata = {
-                "tokens_total": completion.usage.total_tokens,
-                "tokens_input": completion.usage.prompt_tokens,
-                "tokens_output": completion.usage.completion_tokens,
-                "completion_id": completion.id,
-                "model": model,
-            }
-
-            logger.info(
-                "chat_completion_created",
-                completion_id=completion.id,
-                tokens_total=usage_metadata["tokens_total"],
-            )
-
-            return content, usage_metadata
-
-        except OpenAIError as e:
-            logger.error("openai_error", error=str(e), model=model, exc_info=True)
             raise
 
     @retry(

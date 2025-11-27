@@ -1,8 +1,4 @@
-"""Candidate resume summarizer for searchable metadata generation.
-
-Uses gpt-4o-mini to generate concise summaries (300 tokens max) for embedding.
-Cost optimization: ~$0.001 per resume vs $0.01 with gpt-5.1.
-"""
+"""Candidate resume summarizer for searchable metadata generation using gpt-5.1."""
 
 from typing import Any
 
@@ -27,10 +23,7 @@ class CandidateSummary(BaseModel):
 
 
 class ResumeSummarizer:
-    """Generate searchable summaries from candidate profiles.
-
-    Uses gpt-4o-mini for cost-effective summarization optimized for embedding.
-    """
+    """Generate searchable summaries from candidate profiles with gpt-5.1."""
 
     def __init__(self, openai_client: OpenAIClient | None = None):
         """Initialize summarizer.
@@ -38,7 +31,7 @@ class ResumeSummarizer:
         Args:
             openai_client: OpenAI client instance
         """
-        self.openai_client = openai_client or OpenAIClient(model="gpt-4o-mini")
+        self.openai_client = openai_client or OpenAIClient(model="gpt-5.1")
         self.logger = get_logger(f"{__name__}.{self.__class__.__name__}")
 
     async def summarize_candidate(
@@ -63,9 +56,8 @@ class ResumeSummarizer:
         # Build prompt from available data
         prompt = self._build_summary_prompt(candidate_profile, parsed_resume)
 
-        # Call gpt-4o-mini for summary
-        summary, metadata = await self.openai_client.create_chat_completion(
-            messages=[
+        summary, metadata = await self.openai_client.create_response(
+            input_text=[
                 {
                     "role": "system",
                     "content": "You are a professional recruiter summarizing candidate profiles for search. "
@@ -73,10 +65,9 @@ class ResumeSummarizer:
                 },
                 {"role": "user", "content": prompt},
             ],
-            model="gpt-4o-mini",
-            temperature=0.3,
-            max_tokens=500,
-            response_format=CandidateSummary,
+            response_model=CandidateSummary,
+            model="gpt-5.1",
+            max_output_tokens=500,
         )
 
         self.logger.info(

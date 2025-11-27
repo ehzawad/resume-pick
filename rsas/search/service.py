@@ -22,6 +22,10 @@ class SearchResult(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
+class RerankOutput(BaseModel):
+    candidate_ids: list[str]
+
+
 class SearchService:
     def __init__(
         self,
@@ -31,7 +35,7 @@ class SearchService:
     ):
         self.store = store
         self.chroma = chroma_client
-        self.openai = openai_client or OpenAIClient(model="text-embedding-3-small")
+        self.openai = openai_client or OpenAIClient(model="gpt-5.1")
         self.test_mode = bool(os.getenv("RSAS_TEST_MODE"))
 
     async def search(
@@ -144,22 +148,14 @@ class SearchService:
         prompt = "Rerank candidates for query: {q}\n\n".format(q=query)
         for idx, res in enumerate(items, start=1):
             prompt += f"{idx}. {res.candidate_id}: {res.summary_text}\n"
-        prompt += "Return best to worst as a list of candidate_ids."
+        prompt += "Return JSON with field `candidate_ids` ordered best to worst."
 
-        content, _ = await self.openai.create_chat_completion(
-            messages=[{"role": "user", "content": prompt}],
-            model="gpt-4o-mini",
+        rerank_output, _ = await self.openai.create_response(
+            input_text=prompt,
+            response_model=RerankOutput,
+            model="gpt-5.1",
         )
-        # Parse candidate ids from response (simple split)
-        ordered_ids: list[str] = []
-        if isinstance(content, str):
-            for line in content.splitlines():
-                if not line.strip():
-                    continue
-                parts = line.split()
-                if parts:
-                    cid = parts[-1].strip().strip(".")
-                    ordered_ids.append(cid)
+        ordered_ids: list[str] = rerank_output.candidate_ids
 
         id_to_result = {res.candidate_id: res for res in items}
         reranked = [id_to_result[cid] for cid in ordered_ids if cid in id_to_result]
