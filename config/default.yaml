@@ -1,0 +1,168 @@
+# RSAS Default Configuration
+# Version: 1.5.0
+
+system:
+  version: "1.5.0"
+  environment: "development"
+  log_level: "INFO"
+
+# OpenAI Configuration
+openai:
+  api_key_env: "OPENAI_API_KEY"  # Environment variable name
+  model: "gpt-5.1"
+  reasoning_effort: "high"  # Accuracy priority
+  max_tokens: 4096
+  temperature: 0.1  # Low for consistency
+  timeout: 60
+  max_retries: 3
+  retry_delay: 2
+  organization_id: null  # Optional
+
+# Agent Configuration
+agents:
+  job_understanding:
+    enabled: true
+    cache_ttl: 3600  # Cache for 1 hour
+    max_tokens: 2048
+    temperature: 0.1
+
+  parser:
+    enabled: true
+    max_pages: 20
+    pdf_library: "pdfplumber"  # or "pypdf2"
+    fallback_to_ocr: false
+    max_file_size_mb: 10
+
+  skills_extraction:
+    enabled: true
+    min_confidence: 0.7
+    use_skill_taxonomy: true
+    extract_years: true
+    extract_recency: true
+
+  matching:
+    enabled: true
+    semantic_threshold: 0.75
+    weight_must_haves: 0.7
+    weight_nice_to_haves: 0.3
+
+  scoring:
+    enabled: true
+    weights:
+      technical_skills: 0.40
+      experience: 0.30
+      education: 0.15
+      culture_fit: 0.10
+      career_trajectory: 0.05
+    min_confidence: 0.6
+    apply_must_have_ceiling: true  # Cap score if hard must-have missing
+
+  ranking:
+    enabled: true
+    tie_break_criteria:
+      - "experience"
+      - "education"
+      - "technical_skills"
+    tiers:
+      top_10: 90  # 90th percentile and above
+      top_25: 75
+      top_50: 50
+
+  bias_check:
+    enabled: true
+    sensitivity: "medium"  # low, medium, high
+    detect_name_bias: true
+    detect_school_bias: true
+    detect_location_bias: true
+    flag_threshold: 0.1  # Flag if ranking changes > 10%
+
+  output:
+    enabled: true
+    formats:
+      - "json"
+      - "excel"
+      - "csv"
+    include_justifications: true
+    include_evidence: true
+    redact_pii: false  # Set true for production
+
+# Pipeline Configuration
+pipeline:
+  max_concurrent_resumes: 10
+  checkpoint_interval: 10  # Save every 10 resumes
+  error_threshold: 0.1  # Fail job if >10% resumes fail
+  idempotency: true
+  resume_on_restart: true
+  batch_size: 10
+
+# Storage Configuration
+storage:
+  type: "sqlite"  # or "postgresql"
+  database_url: "sqlite+aiosqlite:///database/rsas.db"
+  pool_size: 5
+  max_overflow: 10
+  echo: false  # SQL logging
+  create_tables: true  # Auto-create tables on startup
+
+# PII Configuration
+pii:
+  redact: false  # Redact PII in logs and traces
+  fields:
+    - "name"
+    - "email"
+    - "phone"
+    - "address"
+  anonymize: false  # Hash PII fields
+  retention_days: 90  # Delete after 90 days
+
+# Observability
+observability:
+  logging:
+    format: "json"  # or "console"
+    level: "INFO"
+    file: "logs/rsas.log"
+    rotation: "10 MB"
+    retention: "30 days"
+    include_trace_id: true
+
+  metrics:
+    enabled: true
+    port: 9090
+    collect_agent_metrics: true
+    collect_performance_metrics: true
+
+  tracing:
+    enabled: true
+    sample_rate: 1.0  # 100% sampling
+    store_all_traces: true  # Full trace storage
+
+# API Configuration
+api:
+  host: "0.0.0.0"
+  port: 8000
+  workers: 4
+  reload: false  # Set true for development
+  cors_origins:
+    - "*"
+  cors_credentials: true
+  cors_methods:
+    - "*"
+  cors_headers:
+    - "*"
+  rate_limit: "100/minute"
+  docs_url: "/api/docs"
+  openapi_url: "/api/openapi.json"
+  redoc_url: "/api/redoc"
+
+# CLI Configuration
+cli:
+  default_output_format: "table"  # table, json, yaml
+  color: true
+  progress_bars: true
+  verbose: false
+
+# Testing Configuration
+testing:
+  test_mode: false
+  mock_openai: false
+  use_cached_responses: false

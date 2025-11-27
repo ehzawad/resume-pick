@@ -1,0 +1,45 @@
+Senior Machine Learning Engineer
+
+Company: TechCorp AI Solutions
+
+About the Role:
+We are seeking an experienced Senior Machine Learning Engineer to join our growing AI team. You will be responsible for designing, developing, and deploying production-grade machine learning systems that serve millions of users.
+
+Must-Have Requirements:
+- 5+ years of professional software engineering experience
+- 3+ years of hands-on machine learning/deep learning experience
+- Strong proficiency in Python and ML frameworks (TensorFlow, PyTorch, or JAX)
+- Experience with productionizing ML models and MLOps practices
+- Solid understanding of machine learning fundamentals (supervised/unsupervised learning, neural networks, optimization)
+- Experience with cloud platforms (AWS, GCP, or Azure)
+- Strong computer science fundamentals (algorithms, data structures)
+- Bachelor's degree in Computer Science, Engineering, or related field
+
+Nice-to-Have Skills:
+- Experience with large language models (LLMs) and transformer architectures
+- Knowledge of distributed training and model optimization
+- Experience with Kubernetes and Docker
+- Familiarity with MLflow, Weights & Biases, or similar experiment tracking tools
+- Publications in top-tier ML conferences (NeurIPS, ICML, ICLR, etc.)
+- Master's or PhD in Machine Learning, AI, or related field
+- Experience with recommendation systems or ranking algorithms
+- Knowledge of feature stores and data versioning tools
+
+Responsibilities:
+- Design and implement scalable ML pipelines and infrastructure
+- Develop and deploy production ML models with robust monitoring
+- Collaborate with cross-functional teams to understand business requirements
+- Mentor junior engineers and contribute to technical culture
+- Research and prototype new ML techniques and architectures
+- Optimize model performance for latency and throughput
+- Ensure model fairness, interpretability, and compliance
+
+Technical Environment:
+- Python, TensorFlow/PyTorch
+- AWS (SageMaker, EC2, S3, Lambda)
+- Docker, Kubernetes
+- PostgreSQL, Redis
+- Git, CI/CD pipelines
+
+Compensation: $180,000 - $250,000 + equity
+Location: San Francisco, CA (Hybrid - 3 days/week in office)

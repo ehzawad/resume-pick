@@ -1,0 +1,46 @@
+Senior Data Engineer
+
+Company: DataFlow Analytics
+
+About the Role:
+We are seeking a Senior Data Engineer to build and maintain our data infrastructure that processes billions of events daily. You will design scalable data pipelines, optimize data storage, and enable data-driven decision making across the organization.
+
+Must-Have Requirements:
+- 4+ years of experience in data engineering or related field
+- Strong proficiency in SQL and database design
+- Experience with big data technologies (Spark, Hadoop, Kafka, or Flink)
+- Proficiency in Python or Scala for data processing
+- Experience building and maintaining ETL/ELT pipelines
+- Knowledge of data warehousing concepts and tools (Snowflake, Redshift, BigQuery)
+- Understanding of distributed systems and data architecture
+- Bachelor's degree in Computer Science, Engineering, or related field
+
+Nice-to-Have Skills:
+- Experience with modern data stack tools (dbt, Airflow, Dagster)
+- Knowledge of streaming data pipelines and real-time processing
+- Experience with data quality and observability tools (Great Expectations, Monte Carlo)
+- Familiarity with data governance and compliance (GDPR, CCPA)
+- Experience with dimensional modeling and data vault methodologies
+- Knowledge of machine learning data pipelines and feature engineering
+- Experience with infrastructure as code (Terraform, CloudFormation)
+- Master's degree in Data Science or related field
+- Contributions to open-source data engineering projects
+
+Responsibilities:
+- Design and implement scalable data pipelines and architecture
+- Build and optimize data models for analytics and reporting
+- Ensure data quality, reliability, and governance
+- Collaborate with data scientists and analysts to enable insights
+- Monitor and troubleshoot data pipeline performance
+- Implement data security and access control policies
+- Document data systems and create runbooks
+
+Technical Environment:
+- Data Platforms: Snowflake, AWS S3, Redshift
+- Processing: Apache Spark, Kafka, Airflow
+- Languages: Python, SQL, Scala
+- Infrastructure: AWS (EC2, Lambda, EMR), Terraform
+- Tools: dbt, Fivetran, Looker
+
+Compensation: $150,000 - $200,000 + equity
+Location: New York, NY (Hybrid - 2 days/week in office)
