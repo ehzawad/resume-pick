@@ -21,6 +21,7 @@ class ResumeParseInput(RSASBaseModel):
     candidate_id: str = Field(..., description="Candidate identifier")
     job_id: str = Field(..., description="Job identifier")
     resume_path: str = Field(..., description="Path to resume PDF")
+    content_hash: str | None = Field(None, description="SHA-256 of the resume file for idempotency")
 
 
 class ParserAgent(BaseAgent[ResumeParseInput, ParsedResume]):
@@ -33,6 +34,12 @@ class ParserAgent(BaseAgent[ResumeParseInput, ParsedResume]):
     @property
     def output_schema(self) -> Type[ParsedResume]:
         return ParsedResume
+
+    def _hash_input(self, input_data: ResumeParseInput) -> str:
+        """Hash input using content hash (or fallback to path) for idempotency across location moves."""
+        import hashlib
+        key = f"{input_data.job_id}:{input_data.candidate_id}:{input_data.content_hash or input_data.resume_path}"
+        return hashlib.sha256(key.encode()).hexdigest()
 
     async def process(
         self, input_data: ResumeParseInput, context: AgentContext

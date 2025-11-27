@@ -37,38 +37,112 @@ class RankingAgent(BaseAgent[RankingInput, RankedList]):
         if os.getenv("RSAS_TEST_MODE"):
             sorted_cards = sorted(input_data.scorecards, key=lambda sc: sc.total_score, reverse=True)
             rankings = []
+            total = len(sorted_cards)
             for idx, sc in enumerate(sorted_cards, start=1):
+                if total > 1:
+                    pct = round(100 * (total - idx) / (total - 1))
+                else:
+                    pct = 100
+
+                if pct >= 90:
+                    tier = Tier.TOP_10
+                elif pct >= 75:
+                    tier = Tier.TOP_25
+                elif pct >= 50:
+                    tier = Tier.TOP_50
+                else:
+                    tier = Tier.BOTTOM_50
+
                 rankings.append(
                     RankedCandidate(
                         job_id=input_data.job_id,
                         candidate_id=sc.candidate_id,
                         rank=idx,
-                        percentile=100 - (idx - 1) * 10,
-                        tier=Tier.TOP_10 if idx == 1 else Tier.TOP_25,
+                        percentile=pct,
+                        tier=tier,
                         total_score=sc.total_score,
                         summary="mock ranking",
                     )
                 )
+
+            tier_distribution = {}
+            for rc in rankings:
+                tier_key = rc.tier.value if hasattr(rc.tier, "value") else str(rc.tier)
+                tier_distribution[tier_key] = tier_distribution.get(tier_key, 0) + 1
+
             ranked_list = RankedList(
                 job_id=input_data.job_id,
                 rankings=rankings,
                 total_candidates=len(rankings),
-                tier_distribution={"top_10": 1},
+                tier_distribution=tier_distribution,
                 score_statistics={},
             )
             return AgentResult(success=True, data=ranked_list, metadata={"mock": True})
 
         prompt = self._build_prompt(input_data, context)
-        output, metadata = await self._call_response_api(prompt, context)
-
-        output.job_id = input_data.job_id
-
-        return AgentResult(
-            success=True,
-            data=output,
-            tokens_used=metadata.get("tokens_total", 0),
-            metadata=metadata,
-        )
+        try:
+            output, metadata = await self._call_response_api(prompt, context)
+            output.job_id = input_data.job_id
+            return AgentResult(
+                success=True,
+                data=output,
+                tokens_used=metadata.get("tokens_total", 0),
+                metadata=metadata,
+            )
+        except Exception as exc:
+            # Fall back to deterministic ranking if LLM output is malformed
+            self.logger.warning(
+                "ranking_llm_failed",
+                job_id=input_data.job_id,
+                error=str(exc),
+                fallback="deterministic",
+            )
+            sorted_cards = sorted(input_data.scorecards, key=lambda sc: sc.total_score, reverse=True)
+            total = len(sorted_cards)
+            rankings: list[RankedCandidate] = []
+            for idx, sc in enumerate(sorted_cards, start=1):
+                if total > 1:
+                    pct = round(100 * (total - idx) / (total - 1))
+                else:
+                    pct = 100
+                if pct >= 90:
+                    tier = Tier.TOP_10
+                elif pct >= 75:
+                    tier = Tier.TOP_25
+                elif pct >= 50:
+                    tier = Tier.TOP_50
+                else:
+                    tier = Tier.BOTTOM_50
+                rankings.append(
+                    RankedCandidate(
+                        job_id=input_data.job_id,
+                        candidate_id=sc.candidate_id,
+                        rank=idx,
+                        percentile=pct,
+                        tier=tier,
+                        total_score=sc.total_score,
+                        summary="deterministic fallback ranking based on scores",
+                        strengths=[],
+                        concerns=[],
+                        ranking_metadata={"fallback": True},
+                    )
+                )
+            tier_distribution: dict[str, int] = {}
+            for rc in rankings:
+                key = rc.tier.value if hasattr(rc.tier, "value") else str(rc.tier)
+                tier_distribution[key] = tier_distribution.get(key, 0) + 1
+            ranked_list = RankedList(
+                job_id=input_data.job_id,
+                rankings=rankings,
+                total_candidates=len(rankings),
+                tier_distribution=tier_distribution,
+                score_statistics={},
+            )
+            return AgentResult(
+                success=True,
+                data=ranked_list,
+                metadata={"fallback": True, "error": str(exc)},
+            )
 
     def _build_prompt(self, input_data: RankingInput, context: AgentContext) -> str:
         """Build ranking prompt."""

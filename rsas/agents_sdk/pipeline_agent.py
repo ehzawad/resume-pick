@@ -5,7 +5,24 @@ from __future__ import annotations
 import os
 from typing import Any
 
-from agents import Agent, Runner, function_tool
+try:
+    from agents import Agent, Runner, function_tool
+except ImportError:
+    # Lightweight stubs so tests can run without the Agents SDK installed
+    def function_tool(func):
+        return func
+
+    class Agent:
+        def __init__(self, name: str, instructions: str, model: str, tools: list):
+            self.name = name
+            self.instructions = instructions
+            self.model = model
+            self.tools = tools
+
+    class Runner:
+        @staticmethod
+        async def run(agent: Agent, input: str):
+            raise RuntimeError("Agents SDK not installed")
 from pathlib import Path
 
 from ..core.storage.object_store import ObjectStore

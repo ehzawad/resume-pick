@@ -58,11 +58,3 @@ class RankedList(RSASBaseModel):
     score_statistics: dict[str, float] = Field(
         default_factory=dict, description="Score statistics (mean, median, std)"
     )
-
-
-# =============================================================================
-# SQLAlchemy ORM Models
-# =============================================================================
-
-
-# SQL DB model removed

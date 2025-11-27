@@ -1,12 +1,12 @@
 """Knowledge Base ingestion pipeline.
 
 Orchestrates the complete ingestion process:
-1. Load candidates from database
+1. Load candidates from the object store
 2. Generate summaries (gpt-5.1)
 3. Generate embeddings (text-embedding-3-small)
 4. Index metadata for Tier 1 filtering
 5. Store in ChromaDB for Tier 2 semantic search
-6. Update database with enriched data
+6. Persist enriched metadata back to the object store
 
 Cost estimate for 346 resumes:
 - Summaries: 346 × $0.001 = $0.35
@@ -15,7 +15,7 @@ Cost estimate for 346 resumes:
 """
 
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from ...core.models.candidate_profile import CandidateProfile, ParsedResume
@@ -109,7 +109,7 @@ class KnowledgeBaseIngestionPipeline:
         job_id: str | None = None,
         batch_size: int = 50,
     ) -> IngestionResult:
-        """Ingest all candidates from database into knowledge base.
+        """Ingest all candidates from the object store into the knowledge base.
 
         Args:
             job_id: Optional job ID to filter candidates (None = all candidates)
@@ -128,7 +128,7 @@ class KnowledgeBaseIngestionPipeline:
         )
 
         try:
-            # 1. Load candidates from database
+            # 1. Load candidates from object store
             candidates = await self._load_candidates(job_id)
             total_candidates = len(candidates)
 
@@ -299,7 +299,7 @@ class KnowledgeBaseIngestionPipeline:
             except Exception as e:
                 self.logger.error("chroma_storage_failed", error=str(e))
 
-        # 5. Update database
+        # 5. Persist knowledge base metadata
         processed = 0
         failed = 0
         errors = []
@@ -308,13 +308,13 @@ class KnowledgeBaseIngestionPipeline:
             try:
                 record: dict[str, Any] = {
                     "summary_text": summary.summary_text,
-                    "updated_at": datetime.utcnow().isoformat(),
+                    "updated_at": datetime.now(timezone.utc).isoformat(),
                 }
 
                 if i < len(embeddings):
                     embedding, emb_metadata = embeddings[i]
                     record["embedding_id"] = f"emb_{candidate_id}"
-                    record["embedding_generated_at"] = datetime.utcnow().isoformat()
+                    record["embedding_generated_at"] = datetime.now(timezone.utc).isoformat()
                     record["embedding_dimensions"] = len(embedding)
                     record["embedding_tokens_used"] = emb_metadata.get("tokens_used", 0)
 
@@ -327,7 +327,7 @@ class KnowledgeBaseIngestionPipeline:
 
             except Exception as e:
                 self.logger.error(
-                    "database_update_failed",
+                    "object_store_update_failed",
                     candidate_id=candidate_id,
                     error=str(e),
                 )

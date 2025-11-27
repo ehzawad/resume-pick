@@ -47,7 +47,7 @@ class IndexedMetadata:
         self.last_company = last_company
 
     def to_dict(self) -> dict[str, Any]:
-        """Convert to dictionary for database storage."""
+        """Convert to dictionary for persistence."""
         return {
             "indexed_skills": self.indexed_skills,
             "indexed_companies": self.indexed_companies,

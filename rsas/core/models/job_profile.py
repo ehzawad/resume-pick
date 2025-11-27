@@ -136,11 +136,3 @@ class JobInput(RSASBaseModel):
     title: str = Field(..., min_length=1, max_length=500, description="Job title")
     description: str = Field(..., min_length=10, description="Job description text")
     metadata: dict[str, Any] | None = Field(None, description="Additional metadata")
-
-
-# =============================================================================
-# SQLAlchemy ORM Models (for database persistence)
-# =============================================================================
-
-
-# SQL DB model removed

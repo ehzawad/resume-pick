@@ -9,7 +9,7 @@ system:
 # OpenAI Configuration
 openai:
   api_key_env: "OPENAI_API_KEY"  # Environment variable name
-  model: "gpt-5.1"
+  model: "gpt-5.1"  # Default model (available). Override via env/config if desired.
   reasoning_effort: "high"  # Accuracy priority
   max_tokens: 4096
   temperature: 0.1  # Low for consistency
@@ -109,12 +109,12 @@ kb:
 
 # Storage Configuration
 storage:
-  type: "sqlite"  # or "postgresql"
-  database_url: "sqlite+aiosqlite:///database/rsas.db"
-  pool_size: 5
-  max_overflow: 10
-  echo: false  # SQL logging
-  create_tables: true  # Auto-create tables on startup
+  type: "object_store"  # File-based JSON artifacts
+  object_store_dir: "data/processed"
+  vector:
+    provider: "chroma"
+    mode: "persistent"          # memory or persistent
+    persist_directory: "data/vector/chroma"
 
 # PII Configuration
 pii:

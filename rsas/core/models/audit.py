@@ -81,11 +81,3 @@ class ConfigVersion(IdentifiedSchema, TimestampSchema):
 
     # Description
     description: str | None = Field(None, description="Configuration description")
-
-
-# =============================================================================
-# SQLAlchemy ORM Models
-# =============================================================================
-
-
-# SQL-free; DB models removed.

@@ -18,7 +18,7 @@ class ConfigLoader:
     1. Default config (config/default.yaml)
     2. Environment config (config/environments/{env}.yaml)
     3. Tenant config (config/tenants/{tenant_id}.yaml) [optional]
-    4. Job-specific config (from database) [optional]
+    4. Job-specific config (external source) [optional]
     5. Environment variables (RSAS_*)
     """
 
@@ -44,7 +44,7 @@ class ConfigLoader:
         Args:
             job_id: Job identifier (for job-specific config)
             tenant_id: Tenant identifier (for tenant-specific config)
-            job_config: Job-specific configuration dict (from database)
+            job_config: Job-specific configuration dict (provided programmatically)
 
         Returns:
             Merged configuration dictionary
@@ -66,7 +66,7 @@ class ConfigLoader:
                 tenant_config = self._load_yaml(tenant_config_path)
                 config = self._deep_merge(config, tenant_config)
 
-        # 4. Merge job-specific config (from database)
+        # 4. Merge job-specific config (if provided programmatically)
         if job_config:
             config = self._deep_merge(config, job_config)
 
@@ -207,7 +207,7 @@ def load_config(
     Args:
         job_id: Job identifier
         tenant_id: Tenant identifier
-        job_config: Job-specific configuration
+        job_config: Job-specific configuration provided programmatically
 
     Returns:
         Merged configuration dictionary

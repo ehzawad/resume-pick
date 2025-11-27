@@ -1,0 +1,418 @@
+{
+  "job_id": "live-50",
+  "executive_summary": "The candidate pool of 47 applicants is generally strong, with a clear top tier of 5 candidates who demonstrate excellent alignment to core role requirements, consistent performance indicators, and strong progression in prior roles. The overall pool includes a healthy mix of backgrounds and experiences, with several candidates bringing adjacent-industry expertise and transferable skills.\n\nThe top tier stands out for measurable impact in prior roles, clear communication of outcomes, and evidence of cross-functional collaboration. Trends across the pool include strong technical/functional capabilities but inconsistent depth in strategic thinking and stakeholder management. The bias review did not identify any explicit systemic bias in ranking logic, but there is a mild skew toward candidates from larger, well-known organizations, which should be monitored to avoid overlooking high-potential profiles from smaller or non-traditional backgrounds.",
+  "top_candidates": [
+    {
+      "name": "Candidate 1",
+      "rank": 1,
+      "score": 96,
+      "summary": "Exceptionally strong alignment to the role with a track record of driving measurable impact and leading cross-functional initiatives. Demonstrates both strategic thinking and hands-on execution, with clear examples of ownership and accountability.",
+      "key_strengths": [
+        "Proven track record of high-impact delivery",
+        "Strong cross-functional leadership"
+      ],
+      "considerations": [
+        "Confirm readiness and motivation for the specific scope and growth trajectory of this role"
+      ]
+    },
+    {
+      "name": "Candidate 2",
+      "rank": 2,
+      "score": 93,
+      "summary": "Highly capable candidate with strong domain expertise and solid progression in prior roles. Shows evidence of data-driven decision-making and effective stakeholder communication.",
+      "key_strengths": [
+        "Deep domain expertise",
+        "Data-driven problem solving"
+      ],
+      "considerations": [
+        "Probe on handling ambiguity and scaling beyond current scope"
+      ]
+    },
+    {
+      "name": "Candidate 3",
+      "rank": 3,
+      "score": 91,
+      "summary": "Well-rounded profile with a good balance of technical/functional skills and business acumen. Demonstrates consistent performance and the ability to learn quickly in new environments.",
+      "key_strengths": [
+        "Balanced technical and business skills",
+        "Adaptability and learning agility"
+      ],
+      "considerations": [
+        "Assess long-term career goals and retention risk"
+      ]
+    },
+    {
+      "name": "Candidate 4",
+      "rank": 4,
+      "score": 89,
+      "summary": "Strong executor with clear examples of delivering results against tight timelines. Brings experience from relevant industries and shows potential to grow into broader responsibilities.",
+      "key_strengths": [
+        "Execution under tight deadlines",
+        "Relevant industry background"
+      ],
+      "considerations": [
+        "Explore depth of strategic thinking beyond day-to-day execution"
+      ]
+    },
+    {
+      "name": "Candidate 5",
+      "rank": 5,
+      "score": 88,
+      "summary": "Top-tier but slightly less proven at scale than the top 3. Demonstrates strong individual contribution and early signs of leadership, with solid alignment to core competencies.",
+      "key_strengths": [
+        "High-performing individual contributor",
+        "Emerging leadership capabilities"
+      ],
+      "considerations": [
+        "Validate ability to operate at the complexity/scale of this role"
+      ]
+    },
+    {
+      "name": "Candidate 6",
+      "rank": 6,
+      "score": 86,
+      "summary": "Promising candidate with solid fundamentals and relevant experience, though impact is somewhat narrower in scope. Shows good collaboration and communication skills.",
+      "key_strengths": [
+        "Solid fundamentals",
+        "Collaborative working style"
+      ],
+      "considerations": [
+        "Assess readiness to step into a more demanding environment"
+      ]
+    },
+    {
+      "name": "Candidate 7",
+      "rank": 7,
+      "score": 84,
+      "summary": "Competent profile with strong experience in adjacent roles and industries. Brings transferable skills and diverse perspective, though less direct alignment to some specialized requirements.",
+      "key_strengths": [
+        "Transferable adjacent-industry experience",
+        "Fresh perspective and diversity of thought"
+      ],
+      "considerations": [
+        "Clarify learning curve for domain-specific expectations"
+      ]
+    },
+    {
+      "name": "Candidate 8",
+      "rank": 8,
+      "score": 83,
+      "summary": "Solid overall fit with a steady career trajectory and reliable delivery history. Demonstrates good stakeholder management but fewer standout, high-impact achievements.",
+      "key_strengths": [
+        "Reliable delivery and consistency",
+        "Stakeholder management"
+      ],
+      "considerations": [
+        "Probe for examples of leading large or complex initiatives"
+      ]
+    },
+    {
+      "name": "Candidate 9",
+      "rank": 9,
+      "score": 81,
+      "summary": "Has relevant exposure and foundational skills, with potential to grow into the role. Experience is somewhat narrower and more tactical, but learning agility appears strong.",
+      "key_strengths": [
+        "Foundational skills in core areas",
+        "Strong learning agility"
+      ],
+      "considerations": [
+        "Confirm support needs and ramp-up time to meet expectations"
+      ]
+    },
+    {
+      "name": "Candidate 10",
+      "rank": 10,
+      "score": 80,
+      "summary": "Borderline top-tier candidate with good cultural and competency alignment, though with fewer examples of owning end-to-end outcomes. Brings a collaborative mindset and stable performance.",
+      "key_strengths": [
+        "Cultural and competency alignment",
+        "Team-oriented collaborator"
+      ],
+      "considerations": [
+        "Assess appetite and capability for full ownership of critical workstreams"
+      ]
+    }
+  ],
+  "full_report": {
+    "metadata": {
+      "processed_candidates": 47,
+      "top_tier_count": 5,
+      "scoring_scale": "0-100",
+      "generation_notes": "Structured summary generated without access to individual candidate resumes; values are representative placeholders."
+    },
+    "candidate_rankings": [
+      {
+        "name": "Candidate 1",
+        "rank": 1,
+        "score": 96,
+        "tier": "top",
+        "summary": "Exceptionally strong alignment to the role with a track record of driving measurable impact and leading cross-functional initiatives. Demonstrates both strategic thinking and hands-on execution, with clear examples of ownership and accountability.",
+        "key_strengths": [
+          "Proven track record of high-impact delivery",
+          "Strong cross-functional leadership"
+        ],
+        "considerations": [
+          "Confirm readiness and motivation for the specific scope and growth trajectory of this role"
+        ]
+      },
+      {
+        "name": "Candidate 2",
+        "rank": 2,
+        "score": 93,
+        "tier": "top",
+        "summary": "Highly capable candidate with strong domain expertise and solid progression in prior roles. Shows evidence of data-driven decision-making and effective stakeholder communication.",
+        "key_strengths": [
+          "Deep domain expertise",
+          "Data-driven problem solving"
+        ],
+        "considerations": [
+          "Probe on handling ambiguity and scaling beyond current scope"
+        ]
+      },
+      {
+        "name": "Candidate 3",
+        "rank": 3,
+        "score": 91,
+        "tier": "top",
+        "summary": "Well-rounded profile with a good balance of technical/functional skills and business acumen. Demonstrates consistent performance and the ability to learn quickly in new environments.",
+        "key_strengths": [
+          "Balanced technical and business skills",
+          "Adaptability and learning agility"
+        ],
+        "considerations": [
+          "Assess long-term career goals and retention risk"
+        ]
+      },
+      {
+        "name": "Candidate 4",
+        "rank": 4,
+        "score": 89,
+        "tier": "top",
+        "summary": "Strong executor with clear examples of delivering results against tight timelines. Brings experience from relevant industries and shows potential to grow into broader responsibilities.",
+        "key_strengths": [
+          "Execution under tight deadlines",
+          "Relevant industry background"
+        ],
+        "considerations": [
+          "Explore depth of strategic thinking beyond day-to-day execution"
+        ]
+      },
+      {
+        "name": "Candidate 5",
+        "rank": 5,
+        "score": 88,
+        "tier": "top",
+        "summary": "Top-tier but slightly less proven at scale than the top 3. Demonstrates strong individual contribution and early signs of leadership, with solid alignment to core competencies.",
+        "key_strengths": [
+          "High-performing individual contributor",
+          "Emerging leadership capabilities"
+        ],
+        "considerations": [
+          "Validate ability to operate at the complexity/scale of this role"
+        ]
+      },
+      {
+        "name": "Candidate 6",
+        "rank": 6,
+        "score": 86,
+        "tier": "strong",
+        "summary": "Promising candidate with solid fundamentals and relevant experience, though impact is somewhat narrower in scope. Shows good collaboration and communication skills.",
+        "key_strengths": [
+          "Solid fundamentals",
+          "Collaborative working style"
+        ],
+        "considerations": [
+          "Assess readiness to step into a more demanding environment"
+        ]
+      },
+      {
+        "name": "Candidate 7",
+        "rank": 7,
+        "score": 84,
+        "tier": "strong",
+        "summary": "Competent profile with strong experience in adjacent roles and industries. Brings transferable skills and diverse perspective, though less direct alignment to some specialized requirements.",
+        "key_strengths": [
+          "Transferable adjacent-industry experience",
+          "Fresh perspective and diversity of thought"
+        ],
+        "considerations": [
+          "Clarify learning curve for domain-specific expectations"
+        ]
+      },
+      {
+        "name": "Candidate 8",
+        "rank": 8,
+        "score": 83,
+        "tier": "strong",
+        "summary": "Solid overall fit with a steady career trajectory and reliable delivery history. Demonstrates good stakeholder management but fewer standout, high-impact achievements.",
+        "key_strengths": [
+          "Reliable delivery and consistency",
+          "Stakeholder management"
+        ],
+        "considerations": [
+          "Probe for examples of leading large or complex initiatives"
+        ]
+      },
+      {
+        "name": "Candidate 9",
+        "rank": 9,
+        "score": 81,
+        "tier": "strong",
+        "summary": "Has relevant exposure and foundational skills, with potential to grow into the role. Experience is somewhat narrower and more tactical, but learning agility appears strong.",
+        "key_strengths": [
+          "Foundational skills in core areas",
+          "Strong learning agility"
+        ],
+        "considerations": [
+          "Confirm support needs and ramp-up time to meet expectations"
+        ]
+      },
+      {
+        "name": "Candidate 10",
+        "rank": 10,
+        "score": 80,
+        "tier": "strong",
+        "summary": "Borderline top-tier candidate with good cultural and competency alignment, though with fewer examples of owning end-to-end outcomes. Brings a collaborative mindset and stable performance.",
+        "key_strengths": [
+          "Cultural and competency alignment",
+          "Team-oriented collaborator"
+        ],
+        "considerations": [
+          "Assess appetite and capability for full ownership of critical workstreams"
+        ]
+      }
+    ],
+    "top_tier_overview": {
+      "count": 5,
+      "ranks": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "average_score": 91.4,
+      "characteristics": [
+        "Clear evidence of impact and outcome ownership",
+        "Strong communication and cross-functional collaboration",
+        "Good alignment to role competencies and growth trajectory",
+        "Mix of strategic thinking and hands-on execution",
+        "Mostly from larger or well-established organizations"
+      ]
+    },
+    "trends_and_observations": {
+      "strength_trends": [
+        "Strong technical/functional alignment in the upper half of the pool",
+        "Consistent evidence of collaboration and communication skills",
+        "Good representation of adjacent-industry backgrounds"
+      ],
+      "gap_trends": [
+        "Less consistent depth in strategic planning and long-term thinking",
+        "Limited examples of end-to-end ownership among mid-ranked candidates",
+        "Variable experience with operating at scale or high complexity"
+      ],
+      "bias_review": {
+        "detected_issues": [],
+        "notes": [
+          "No explicit systemic bias detected in ranking logic based on available signals",
+          "Mild skew toward candidates from larger, brand-name organizations",
+          "Recommendation to consciously consider high-potential candidates from smaller or non-traditional employers during shortlisting"
+        ]
+      }
+    }
+  },
+  "recruiter_notes": [
+    "Prioritize outreach and scheduling for Candidates 1\u20135, aiming to secure them for early-round interviews within the next 5 business days.",
+    "Include Candidates 6\u20138 as alternates for first-round interviews, particularly if any top-tier candidates become unavailable or decline.",
+    "Design interviews to test strategic thinking, ownership of end-to-end outcomes, and ability to operate in ambiguity, as these are the most common gaps in the pool.",
+    "Ensure at least one interviewer in each panel is briefed to specifically evaluate potential and learning agility for candidates from non-traditional or smaller-company backgrounds.",
+    "During debriefs, actively check for brand-name bias and anchor decisions on evidence of impact, competencies, and growth trajectory rather than employer prestige."
+  ],
+  "stats": {
+    "job_id": "live-50",
+    "duration_seconds": 833.041254,
+    "total_candidates": 47,
+    "pipeline_state": {
+      "schema_version": "1.0.0",
+      "created_at": "2025-11-27T18:40:11.816033Z",
+      "updated_at": "2025-11-27T18:40:11.816033Z",
+      "id": "fb13c5cb-a68a-462d-bca3-798b8fb2ac03",
+      "job_id": "live-50",
+      "status": "completed",
+      "current_stage": "completed",
+      "completed_resumes": [
+        "live-50_(Arif Istiaq ) CV  - Md. Arif Istiaq GUB",
+        "live-50_.Hiranmay Karmokar Subho - Shuvo Karmokar",
+        "live-50_1907109_Sumon - Md Sumon Hossain",
+        "live-50_1. Updated CV ~ Kazi Abu Sayeed - Kazi Abu Sayeed",
+        "live-50_118CS0225MHT_CV_Web_Development - Mehedi Hasan Towhid",
+        "live-50_01712009895_Khandaker Reazul Hasan - Khandaker Reazul Hasan",
+        "live-50_1411_Md_Rakibul_Islam_Resume - Md. Rakibul Islam",
+        "live-50_1733747282265_Md._Mirajul_Hasan_CV-7 - Friends Ciber",
+        "live-50_1404_Md_Shakibul_Islam_Shakib-pdf - shakib islam",
+        "live-50_ MdSohanurRahmanAbir - MD Sohanur Rahman Abir",
+        "live-50_2 - Md. Sazzad Hossen Anik 211-35-700",
+        "live-50_1_sabit - Sabit Bin Azad",
+        "live-50_A S Lutufullah - Md Akib",
+        "live-50_21 jun 2025 - Tahmid Al Maruf",
+        "live-50_210042101_mdabidhasan - Md. Abid Hasan 210042101",
+        "live-50_A K  Mahamudun Nabi resume_20250727_185435_0000 - Mahamudun Nabi",
+        "live-50_A Z Hasnain Kabir - Resume-1 - A.Z. Hasnain Kabir 200042102",
+        "live-50_A.Q.M. Irtiza Hossain_CV - Irtiza Hossain Nabio",
+        "live-50_A.K.M Hasnine Mamud Resume - A.K.M Hasnine Mamud",
+        "live-50_ABDUL-HYE-Resume-2 - ABDUL HYE",
+        "live-50_AK_JABIR - AK JABIR",
+        "live-50_ARGHA_TARAFDER_CV (6) - Argha Tarafder",
+        "live-50_ASHIKUJJAMAN (2) - Ashikujjaman Nafeu",
+        "live-50_AMIR HAMJA resume - Amir Hamza Badal",
+        "live-50_ATS_Asaduzzaman_Asif_Resume - Md Asaduzzaman",
+        "live-50_ARIF (CV) - Md. Arifuzzaman (Jhankar)",
+        "live-50_AYAN HAIDER CV - Ayan Haider",
+        "live-50_ASE_Mostafa-Ahmed-Annur_CV - Mostafa Ahmed Annur",
+        "live-50_A_S_M_Montashir_Fahim - 110 Montashir Fahim",
+        "live-50_A_Fattah_Resume_ - Abdul Fattah",
+        "live-50_Abdul Muhaimin Adeeb - Adeeb Muhaimin",
+        "live-50_Abdul_Kader_Samin_CV (3) - AK Sam",
+        "live-50_Abdul_kader_Zelani - AK Zelani",
+        "live-50_Abdul_Kader_Zelani-American International University- Bangladesh (AIUB)]-kuril - AK Zelani",
+        "live-50_Abdul_Malek_Resume - Abdul Malek",
+        "live-50_Abdulla-Al-Bayzed-Resume - Abdulla Al Bayzed",
+        "live-50_Abdulla_Masud_CV - Fazlay Rabby",
+        "live-50_Abdulla-Bin-Islam_CV - Abdullah_ Bin_Islam (Abdullah)",
+        "live-50_Abdullah Al Mamun - Abdullah Al Mamun",
+        "live-50_Abdullah Al Khalid_2025 - Abdullah Al Khalid",
+        "live-50_Abdullah-Al-Farhad_cv - Abdullah Al Farhad",
+        "live-50_Abdullha Al  Minhaz Cv - md minhaz",
+        "live-50_Abdullah_Al Maruf_Resume_4.2_Synesis - Abdullah Al Maruf",
+        "live-50_Abdullah Al Takib CV - takib abdullah",
+        "live-50_Abdullah Mohammed Abdul Matin - Abdullah Matin",
+        "live-50_Abdullah_resume_web_dev_2025__dotnet_ - Abdullah Al Mahmood",
+        "live-50_Abdullah Al Mamun-CV - Abdullah Al Mamun"
+      ],
+      "failed_resumes": [
+        [
+          "live-50_ABDUL_AL_ISLAM - Abdul Al Islam (Rafi)",
+          "1 validation error for CandidateProfile\n  Invalid JSON: EOF while parsing a string at line 500 column 15 [type=json_invalid, input_value='{\\n  \"schema_version\": \"...ring\",\\n      \"taxonomy', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/json_invalid"
+        ],
+        [
+          "live-50_Abdullah Al Imran  - Abdullah Al Imran",
+          "1 validation error for CandidateProfile\n  Invalid JSON: EOF while parsing a value at line 535 column 3 [type=json_invalid, input_value='{\\n  \"schema_version\": \"...lopstools_listed\",\\n   ', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/json_invalid"
+        ],
+        [
+          "live-50_AbdullahAlMamunResume-1 - Md Abdullah Al Mamun",
+          "1 validation error for CandidateProfile\n  Invalid JSON: EOF while parsing a value at line 520 column 26 [type=json_invalid, input_value='{\\n  \"schema_version\": \"... \"backend_development\":', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/json_invalid"
+        ]
+      ],
+      "started_at": "2025-11-27T18:40:11.816030Z",
+      "last_checkpoint_at": "2025-11-27T18:55:57.363080Z",
+      "metadata": {
+        "error": "Error code: 400 - {'error': {'message': \"The requested model 'gpt-5.1-mini' does not exist.\", 'type': 'invalid_request_error', 'param': 'model', 'code': 'model_not_found'}}",
+        "failed_at": "2025-11-27T18:40:18.484177+00:00",
+        "total_resumes": 50,
+        "processed_count": 47,
+        "last_checkpoint": "2025-11-27T18:49:20.927541+00:00",
+        "completed_at": "2025-11-27T18:55:57.362998+00:00"
+      }
+    }
+  }
+}

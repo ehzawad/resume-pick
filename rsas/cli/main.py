@@ -73,6 +73,14 @@ def process(
         Path | None,
         typer.Option("--output", "-o", help="Path to save output JSON"),
     ] = None,
+    limit_resumes: Annotated[
+        int | None,
+        typer.Option(
+            "--limit-resumes",
+            "-l",
+            help="Max number of resumes to process (for cost control). Processes all if not set.",
+        ),
+    ] = None,
 ):
     """Process resumes for a job opening.
 
@@ -101,7 +109,7 @@ def process(
     # Run pipeline
     async def run_pipeline():
         pipeline = JobPipeline(store, context)
-        result = await pipeline.run(job_id, jd_text, resumes_dir)
+        result = await pipeline.run(job_id, jd_text, resumes_dir, resume_limit=limit_resumes)
 
         return result
 

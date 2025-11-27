@@ -135,11 +135,3 @@ class CandidateProfile(IdentifiedSchema, TimestampSchema, VersionedSchema):
         default_factory=list, description="Employment gaps"
     )
     quality_flags: list[str] = Field(default_factory=list, description="Quality issues")
-
-
-# =============================================================================
-# SQLAlchemy ORM Models
-# =============================================================================
-
-
-# SQL DB model removed

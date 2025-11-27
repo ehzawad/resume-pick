@@ -81,11 +81,3 @@ class ScoreCard(IdentifiedSchema, TimestampSchema, VersionedSchema):
 
     # Configuration used
     scoring_config_id: str | None = Field(None, description="Scoring configuration ID")
-
-
-# =============================================================================
-# SQLAlchemy ORM Models
-# =============================================================================
-
-
-# SQL DB model removed

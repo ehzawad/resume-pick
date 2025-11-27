@@ -148,23 +148,25 @@ class OpenAIClient:
                 model=model,
                 input=input_payload,
                 instructions=(
-                "You are a structured extraction model. "
-                "Return ONLY a JSON object parsable by the target schema. "
-                "If data is unknown, use null or empty collections. "
-                "Keep text concise and limit lists to the top 5 items. "
-                f"Schema (JSON): {schema_hint}"
-            ),
-            max_output_tokens=max_output_tokens or 4096,
-            metadata=metadata or {},
-            reasoning=reasoning_payload,
-            text={"format": text_format},
-        )
+                    "You are a structured extraction model. "
+                    "Return ONLY a valid JSON object that conforms to the provided schema. "
+                    "Do not add markdown, code fences, prose, or extra keys. "
+                    "If a field is unknown, set it to null or an empty list/object. "
+                    "Limit lists to the top 5 items and keep text concise. "
+                    "If you cannot comply, return an empty JSON object. "
+                    f"Schema (JSON): {schema_hint}"
+                ),
+                max_output_tokens=max_output_tokens or 4096,
+                metadata=metadata or {},
+                reasoning=reasoning_payload,
+                text={"format": text_format},
+            )
 
             output_text = self._extract_text_from_response(completion)
             if not output_text:
                 raise ValueError("No text content returned from OpenAI response")
 
-            parsed_output = response_model.model_validate_json(output_text)
+            parsed_output = self._parse_response_json(response_model, output_text)
 
             usage_metadata = {
                 "tokens_total": getattr(completion.usage, "total_tokens", 0),
@@ -192,6 +194,32 @@ class OpenAIClient:
                 exc_info=True,
             )
             raise
+
+    def _parse_response_json(self, response_model: Type[T], output_text: str) -> T:
+        """Parse model output into the response model with basic JSON repair."""
+        try:
+            return response_model.model_validate_json(output_text)
+        except Exception:
+            repaired = self._repair_json(output_text)
+            if repaired is not None:
+                try:
+                    return response_model.model_validate(repaired)
+                except Exception:
+                    pass
+            # Re-raise original failure to surface parsing error
+            raise
+
+    def _repair_json(self, text: str) -> dict[str, Any] | None:
+        """Best-effort JSON repair: trim to outermost braces and parse."""
+        if "{" not in text or "}" not in text:
+            return None
+        start = text.find("{")
+        end = text.rfind("}") + 1
+        candidate = text[start:end]
+        try:
+            return json.loads(candidate)
+        except Exception:
+            return None
 
     @retry(
         stop=stop_after_attempt(3),

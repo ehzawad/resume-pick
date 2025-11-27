@@ -56,6 +56,7 @@ class JobPipeline:
         job_id: str,
         job_description: str,
         resume_dir: Path,
+        resume_limit: int | None = None,
     ) -> PipelineResult:
         """Run complete pipeline for a job.
 
@@ -63,6 +64,7 @@ class JobPipeline:
             job_id: Unique job identifier
             job_description: Raw job description text
             resume_dir: Directory containing resume PDFs
+            resume_limit: Optional max number of resumes to process
 
         Returns:
             PipelineResult with final output and metadata
@@ -80,7 +82,7 @@ class JobPipeline:
 
             # Step 2-5: Process all resumes (parse → extract → match → score)
             scorecards = await self._process_all_resumes(
-                job_id, job_profile, resume_dir, state
+                job_id, job_profile, resume_dir, state, resume_limit
             )
 
             # Step 6: Ranking
@@ -169,7 +171,7 @@ class JobPipeline:
         current_stage: str | None = None,
         metadata: dict[str, Any] | None = None,
     ) -> None:
-        """Update pipeline state in database."""
+        """Persist updated pipeline state to the object store."""
         if status:
             state.status = status
         if current_stage:
@@ -229,10 +231,13 @@ class JobPipeline:
         job_profile: EnrichedJobProfile,
         resume_dir: Path,
         state: PipelineState,
+        resume_limit: int | None = None,
     ) -> list[ScoreCard]:
         """Process all resumes through parse → (optional prefilter) → extract → match → score pipeline."""
         # Find all PDF files
-        pdf_files = list(resume_dir.glob("*.pdf"))
+        pdf_files = sorted(resume_dir.glob("*.pdf"))
+        if resume_limit is not None and resume_limit > 0:
+            pdf_files = pdf_files[:resume_limit]
         total_resumes = len(pdf_files)
 
         logger.info(
@@ -252,12 +257,22 @@ class JobPipeline:
 
         semaphore = asyncio.Semaphore(self.max_concurrent)
 
+        def _file_hash(path: Path) -> str:
+            import hashlib
+
+            h = hashlib.sha256()
+            with path.open("rb") as f:
+                for chunk in iter(lambda: f.read(8192), b""):
+                    h.update(chunk)
+            return h.hexdigest()
+
         async def parse_only(pdf_path: Path) -> tuple[str, ParsedResume | None]:
             """Parse a single resume and return candidate_id + parsed object."""
             candidate_id = f"{job_id}_{pdf_path.stem}"
             async with semaphore:
                 try:
-                    parsed = await self._parse_resume(job_id, candidate_id, pdf_path)
+                    content_hash = _file_hash(pdf_path)
+                    parsed = await self._parse_resume(job_id, candidate_id, pdf_path, content_hash)
                     return candidate_id, parsed
                 except Exception as e:
                     logger.exception(
@@ -424,12 +439,13 @@ class JobPipeline:
         keep = {cid for cid, _ in scored[:top_n]}
         return keep
 
-    async def _parse_resume(self, job_id: str, candidate_id: str, pdf_path: Path) -> ParsedResume:
+    async def _parse_resume(self, job_id: str, candidate_id: str, pdf_path: Path, content_hash: str) -> ParsedResume:
         """Parse PDF resume."""
         input_data = ResumeParseInput(
             job_id=job_id,
             candidate_id=candidate_id,
             resume_path=str(pdf_path),
+            content_hash=content_hash,
         )
         result = await self.parser.execute(input_data, self.context)
 
