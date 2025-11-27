@@ -95,6 +95,18 @@ pipeline:
   resume_on_restart: true
   batch_size: 10
 
+# Prefilter to cut LLM costs on large resume sets
+prefilter:
+  enabled: false          # Enable to prefilter parsed resumes before LLM steps
+  top_n: 1000             # Keep top N most relevant resumes
+  embedding_model: "text-embedding-3-small"
+  embedding_batch_size: 100
+
+# Knowledge Base (summaries + embeddings) after pipeline
+kb:
+  auto_ingest: true        # Build summaries/embeddings after pipeline completes
+  batch_size: 50           # Batch size for KB ingestion
+
 # Storage Configuration
 storage:
   type: "sqlite"  # or "postgresql"

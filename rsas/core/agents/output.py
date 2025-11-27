@@ -25,7 +25,9 @@ class FormattedOutput(RSASBaseModel):
 
     job_id: str = Field(..., description="Job identifier")
     executive_summary: str = Field(..., description="Executive summary")
-    top_candidates_summary: list[dict[str, str]] = Field(..., description="Top N summaries")
+    top_candidates_summary: list[dict[str, object]] = Field(
+        ..., description="Top N summaries (lenient types from model output)"
+    )
     full_report_json: dict = Field(..., description="Complete data as JSON")
     recruiter_notes: list[str] = Field(default_factory=list, description="Notes for recruiters")
 

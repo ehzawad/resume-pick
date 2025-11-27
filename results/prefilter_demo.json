@@ -1,0 +1,237 @@
+{
+  "job_id": "prefilter-demo",
+  "executive_summary": "The candidate pool for this role appears generally strong, with most candidates demonstrating relevant core skills and experience aligned to the job\u2019s requirements. One candidate clearly stands out as top tier based on overall score, role alignment, and demonstrated impact, while the remaining candidates form a solid middle tier with varying levels of depth and specialization.\n\nThe top-tier candidate combines strong domain expertise, consistent performance across competencies, and clear evidence of ownership and problem-solving. A few key trends emerged: prior experience in similar environments strongly correlates with higher scores, communication skills were a common differentiator, and some candidates showed depth in either technical or strategic areas but not both. No major systemic concerns surfaced from the bias perspective based on the provided rankings alone; however, given the small sample size (5 candidates), care should be taken to avoid over-indexing on background similarity and to ensure a structured, consistent interview approach for all shortlisted candidates.",
+  "top_candidates": [
+    {
+      "name": "Candidate 1",
+      "rank": 1,
+      "score": null,
+      "summary": "Top-ranked candidate with the strongest overall alignment to the role and clear evidence of high performance in similar environments. Demonstrates balanced capabilities across core functional skills, communication, and cross-functional collaboration. Likely to ramp quickly and contribute at a high level with minimal oversight.",
+      "key_strengths": [
+        "Direct, relevant experience with strong track record of impact",
+        "Balanced skill set across technical/functional depth and communication"
+      ],
+      "considerations": [
+        "Validate culture add and long-term motivation for this specific role and company"
+      ]
+    },
+    {
+      "name": "Candidate 2",
+      "rank": 2,
+      "score": null,
+      "summary": "Strong overall candidate with solid alignment on core responsibilities and moderate-to-high performance indicators. May excel in a slightly narrower scope or with clear direction and expectations. Good potential as a near-top-tier option if development areas are manageable.",
+      "key_strengths": [
+        "Solid core skills and relevant experience",
+        "Evidence of reliability and consistent delivery"
+      ],
+      "considerations": [
+        "Probe depth of independent problem-solving and handling ambiguity"
+      ]
+    },
+    {
+      "name": "Candidate 3",
+      "rank": 3,
+      "score": null,
+      "summary": "Mid-ranked candidate who meets baseline requirements and shows potential, particularly in a more structured environment. May be a good fit for roles with clear processes or as part of a team with strong senior guidance. Suitable as a backup or growth candidate.",
+      "key_strengths": [
+        "Meets baseline role requirements",
+        "Demonstrates potential for growth with guidance"
+      ],
+      "considerations": [
+        "Assess ability to scale to role complexity and pace"
+      ]
+    },
+    {
+      "name": "Candidate 4",
+      "rank": 4,
+      "score": null,
+      "summary": "Candidate with partial role alignment and some relevant skills, though with more noticeable gaps compared to higher-ranked candidates. Could be considered for more junior or specialized responsibilities where their strengths are leveraged and risk is contained.",
+      "key_strengths": [
+        "Some relevant experience or transferrable skills",
+        "Apparent willingness to learn and adapt"
+      ],
+      "considerations": [
+        "Clarify gaps in required competencies and ramp-up timeline"
+      ]
+    },
+    {
+      "name": "Candidate 5",
+      "rank": 5,
+      "score": null,
+      "summary": "Lowest-ranked candidate in the processed pool, meeting only the minimal or partial requirements for the role. May be a fit for alternative positions or future pipelines after further development, rather than for immediate consideration for this opening.",
+      "key_strengths": [
+        "Foundational skills that could be developed over time",
+        "Potential fit for adjacent or junior roles"
+      ],
+      "considerations": [
+        "Likely not competitive for this specific role versus higher-ranked candidates"
+      ]
+    }
+  ],
+  "full_report": {
+    "metadata": {
+      "job_id": "unknown",
+      "total_candidates_processed": 5,
+      "top_tier_candidates": 1,
+      "generation_notes": "Scores and detailed inputs were not provided; rankings and qualitative summaries are inferred at a high level."
+    },
+    "candidates": [
+      {
+        "name": "Candidate 1",
+        "rank": 1,
+        "tier": "top",
+        "score": null,
+        "summary": "Top-ranked candidate with the strongest overall alignment to the role and clear evidence of high performance in similar environments. Demonstrates balanced capabilities across core functional skills, communication, and cross-functional collaboration.",
+        "key_strengths": [
+          "Direct, relevant experience with strong track record of impact",
+          "Balanced skill set across technical/functional depth and communication",
+          "Likely to ramp quickly with minimal oversight"
+        ],
+        "considerations": [
+          "Validate culture add and long-term motivation for this specific role and company",
+          "Confirm expectations around scope, autonomy, and growth path"
+        ],
+        "recommended_next_step": "Priority first-round or panel interview with focus on real-world problem scenarios and culture add."
+      },
+      {
+        "name": "Candidate 2",
+        "rank": 2,
+        "tier": "strong",
+        "score": null,
+        "summary": "Strong candidate with solid alignment on core responsibilities and moderate-to-high performance indicators. May excel when given clear goals and structure and can be a strong contributor with defined expectations.",
+        "key_strengths": [
+          "Solid core skills and relevant experience",
+          "Evidence of reliability and consistent delivery",
+          "Good collaborator when expectations are clear"
+        ],
+        "considerations": [
+          "Probe depth of independent problem-solving and comfort with ambiguity",
+          "Assess readiness for full scope versus slightly reduced or phased-in responsibilities"
+        ],
+        "recommended_next_step": "Structured interview focused on ownership, ambiguity handling, and depth of expertise."
+      },
+      {
+        "name": "Candidate 3",
+        "rank": 3,
+        "tier": "qualified",
+        "score": null,
+        "summary": "Mid-ranked candidate who meets baseline requirements and shows potential, especially in structured or well-defined environments. More suited as a growth hire or for roles with strong senior guidance.",
+        "key_strengths": [
+          "Meets baseline role requirements",
+          "Demonstrates potential and willingness to grow",
+          "Can contribute effectively with clear direction"
+        ],
+        "considerations": [
+          "Assess ability to handle role complexity and evolving priorities",
+          "Clarify coaching needs and expected support level"
+        ],
+        "recommended_next_step": "Conditional interview if pipeline depth is needed; focus on learning agility and problem-solving fundamentals."
+      },
+      {
+        "name": "Candidate 4",
+        "rank": 4,
+        "tier": "borderline",
+        "score": null,
+        "summary": "Candidate with partial alignment to the role and more pronounced gaps in either experience breadth or competency depth. More appropriate for narrower or junior scopes where strengths can be leveraged selectively.",
+        "key_strengths": [
+          "Some relevant or transferrable skills",
+          "Potential to contribute in a limited or specialized capacity"
+        ],
+        "considerations": [
+          "Identify concrete gaps versus must-have requirements",
+          "Likely requires significant support to meet full role expectations"
+        ],
+        "recommended_next_step": "Hold in reserve; consider only if higher-ranked candidates are unavailable or for alternate openings."
+      },
+      {
+        "name": "Candidate 5",
+        "rank": 5,
+        "tier": "not_recommended_for_this_role",
+        "score": null,
+        "summary": "Lowest-ranked candidate in this pool, meeting only minimal or partial requirements relative to the role\u2019s expectations. Better suited for alternative roles, internships, or future pipeline after further development.",
+        "key_strengths": [
+          "Foundational competencies that could be developed",
+          "Possible fit for adjacent or lower-scope positions"
+        ],
+        "considerations": [
+          "Not competitive with current slate for this opening",
+          "Would require substantial upskilling or scope reduction"
+        ],
+        "recommended_next_step": "No interview for this role; consider for future or alternative opportunities if relevant."
+      }
+    ],
+    "bias_and_fairness": {
+      "observations": [
+        "No explicit demographic data or sensitive attributes were provided, so only outcome-based patterns can be considered.",
+        "Ranking is driven by inferred job-related criteria (experience relevance, skills, performance indicators)."
+      ],
+      "potential_risks": [
+        "Small sample size (5 candidates) increases the risk of unintentional pattern bias (e.g., favoring familiar backgrounds).",
+        "Without structured, competency-based interviews, there is a risk of amplifying any bias present in initial rankings."
+      ],
+      "mitigations": [
+        "Use standardized, competency-based interview questions for all shortlisted candidates.",
+        "Score interviews with a shared rubric and multiple interviewers when possible.",
+        "Document hiring decisions with reference to explicit job-related criteria only."
+      ]
+    },
+    "recommendations": {
+      "interview_pipeline": [
+        "Advance Candidate 1 as the primary top-tier option; schedule interviews early and include both hiring manager and cross-functional partner.",
+        "Advance Candidate 2 and Candidate 3 to first-round interviews if capacity allows, to preserve optionality and compare styles.",
+        "Keep Candidate 4 and Candidate 5 as backup or for alternative roles, rather than as primary contenders."
+      ],
+      "focus_areas_in_interviews": [
+        "Ownership and ability to operate in ambiguity, especially for higher-ranked candidates.",
+        "Depth versus breadth of skills for each candidate relative to the role\u2019s must-haves.",
+        "Culture add (not culture fit) and long-term motivation, especially for the top-tier candidate."
+      ],
+      "diversity_and_inclusion": [
+        "Ensure the interview panel is diverse where possible and trained on structured interviewing.",
+        "Avoid overweighting pedigree, company names, or non-job-related signals; focus on concrete outcomes and behaviors.",
+        "Use consistent scoring rubrics across all candidates to support fair comparisons."
+      ]
+    }
+  },
+  "recruiter_notes": [
+    "Prioritize scheduling a structured, multi-interviewer panel for Candidate 1, with clear feedback deadlines to avoid losing them in the process.",
+    "Advance Candidate 2 and Candidate 3 to interviews if bandwidth allows; use them as benchmarks to validate expectations and calibration for the role.",
+    "Maintain Candidate 4 and Candidate 5 as reserve or pipeline candidates and consider them for more junior, specialized, or alternative openings rather than this primary role.",
+    "Use a consistent, competency-based interview rubric focused on core role requirements (e.g., problem-solving, execution, collaboration) to minimize bias and support fair comparisons.",
+    "Ensure interview panels are briefed on diversity and inclusion best practices, emphasizing evaluation based on evidence and structured questions rather than informal fit."
+  ],
+  "stats": {
+    "job_id": "prefilter-demo",
+    "duration_seconds": 29.941964,
+    "total_candidates": 5,
+    "pipeline_state": {
+      "schema_version": "1.0.0",
+      "created_at": "2025-11-27T16:06:43.301719Z",
+      "updated_at": "2025-11-27T16:06:43.301719Z",
+      "id": "1ebadf6e-43e3-4c9e-ac03-406a40669346",
+      "job_id": "prefilter-demo",
+      "status": "completed",
+      "current_stage": "completed",
+      "completed_resumes": [
+        "prefilter-demo_(Arif Istiaq ) CV  - Md. Arif Istiaq GUB",
+        "prefilter-demo__Anish_Biswas_CV_ - Anish Biswas",
+        "prefilter-demo_.Hiranmay Karmokar Subho - Shuvo Karmokar",
+        "prefilter-demo_ MdSohanurRahmanAbir - MD Sohanur Rahman Abir",
+        "prefilter-demo__CV Resume - Nahin F. Siddiqui 200041143",
+        "prefilter-demo__Anish_Biswas_CV_ - Anish Biswas",
+        "prefilter-demo_ MdSohanurRahmanAbir - MD Sohanur Rahman Abir",
+        "prefilter-demo__CV Resume - Nahin F. Siddiqui 200041143",
+        "prefilter-demo_.Hiranmay Karmokar Subho - Shuvo Karmokar",
+        "prefilter-demo_(Arif Istiaq ) CV  - Md. Arif Istiaq GUB"
+      ],
+      "failed_resumes": [],
+      "started_at": "2025-11-27T16:06:43.301716Z",
+      "last_checkpoint_at": "2025-11-27T16:14:38.317664Z",
+      "metadata": {
+        "total_resumes": 5,
+        "processed_count": 5,
+        "completed_at": "2025-11-27T16:14:38.317583+00:00"
+      }
+    }
+  }
+}

@@ -15,6 +15,7 @@ from ..core.orchestrator.pipeline import JobPipeline
 from ..core.storage.object_store import ObjectStore
 from ..search.service import SearchService
 from ..observability.logger import get_logger
+from ..interactive.assistant import run_chat_session
 
 logger = get_logger(__name__)
 console = Console()
@@ -142,7 +143,7 @@ def process(
                 "top_candidates": output.top_candidates_summary,
                 "full_report": output.full_report_json,
                 "recruiter_notes": output.recruiter_notes,
-                "metadata": result.metadata,
+                "stats": result.stats,
             }
             output_file.write_text(json.dumps(output_data, indent=2), encoding="utf-8")
             console.print(f"\n[green]Output saved to:[/green] {output_file}")
@@ -371,6 +372,20 @@ def search(
         table.add_row(str(idx), res.candidate_id, res.job_id, f"{res.score:.3f}", summary)
 
     console.print(table)
+
+
+@app.command()
+def chat(
+    job_id: Annotated[str, typer.Option("--job-id", "-j", help="Job identifier")],
+    prompt: Annotated[str | None, typer.Option("--prompt", "-p", help="Single-turn question (omit for interactive mode)")] = None,
+    model: Annotated[str | None, typer.Option("--model", help="Override model for chat completions")] = None,
+):
+    """Interactive agentic chat to answer questions about candidates."""
+    console.print(
+        "[dim]Launching RSAS Candidate Navigator. Set OPENAI_API_KEY for live answers; "
+        "offline mode will use stored data only.[/dim]"
+    )
+    run_chat_session(job_id=job_id, model=model, prompt=prompt)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,60 @@
+{
+  "job_id": "demo-ml",
+  "executive_summary": "Mock executive summary",
+  "top_candidates": [
+    {
+      "name": "Candidate 1",
+      "rank": "1",
+      "score": "70.0",
+      "summary": "Mock summary"
+    }
+  ],
+  "full_report": {},
+  "recruiter_notes": [
+    "Mock note"
+  ],
+  "stats": {
+    "job_id": "demo-ml",
+    "duration_seconds": 0.01004,
+    "total_candidates": 5,
+    "pipeline_state": {
+      "schema_version": "1.0.0",
+      "created_at": "2025-11-27T14:08:40.804900Z",
+      "updated_at": "2025-11-27T14:08:40.804901Z",
+      "id": "5bfad2bc-9181-4caa-abf4-231915647e74",
+      "job_id": "demo-ml",
+      "status": "completed",
+      "current_stage": "completed",
+      "completed_resumes": [
+        "demo-ml__Anish_Biswas_CV_ - Anish Biswas",
+        "demo-ml_ MdSohanurRahmanAbir - MD Sohanur Rahman Abir",
+        "demo-ml__CV Resume - Nahin F. Siddiqui 200041143",
+        "demo-ml_.Hiranmay Karmokar Subho - Shuvo Karmokar",
+        "demo-ml_(Arif Istiaq ) CV  - Md. Arif Istiaq GUB",
+        "demo-ml__Anish_Biswas_CV_ - Anish Biswas",
+        "demo-ml_ MdSohanurRahmanAbir - MD Sohanur Rahman Abir",
+        "demo-ml__CV Resume - Nahin F. Siddiqui 200041143",
+        "demo-ml_.Hiranmay Karmokar Subho - Shuvo Karmokar",
+        "demo-ml_(Arif Istiaq ) CV  - Md. Arif Istiaq GUB",
+        "demo-ml__Anish_Biswas_CV_ - Anish Biswas",
+        "demo-ml_ MdSohanurRahmanAbir - MD Sohanur Rahman Abir",
+        "demo-ml__CV Resume - Nahin F. Siddiqui 200041143",
+        "demo-ml_.Hiranmay Karmokar Subho - Shuvo Karmokar",
+        "demo-ml_(Arif Istiaq ) CV  - Md. Arif Istiaq GUB",
+        "demo-ml__Anish_Biswas_CV_ - Anish Biswas",
+        "demo-ml_ MdSohanurRahmanAbir - MD Sohanur Rahman Abir",
+        "demo-ml__CV Resume - Nahin F. Siddiqui 200041143",
+        "demo-ml_.Hiranmay Karmokar Subho - Shuvo Karmokar",
+        "demo-ml_(Arif Istiaq ) CV  - Md. Arif Istiaq GUB"
+      ],
+      "failed_resumes": [],
+      "started_at": "2025-11-27T14:08:40.804895Z",
+      "last_checkpoint_at": "2025-11-27T15:25:14.333064Z",
+      "metadata": {
+        "total_resumes": 5,
+        "processed_count": 5,
+        "completed_at": "2025-11-27T15:25:14.333048+00:00"
+      }
+    }
+  }
+}

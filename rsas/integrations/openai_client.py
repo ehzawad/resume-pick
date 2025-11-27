@@ -2,10 +2,13 @@
 
 import hashlib
 import os
+import json
+from pathlib import Path
 from typing import Any, Type, TypeVar
 
 from openai import AsyncOpenAI, OpenAIError
 from pydantic import BaseModel
+from pydantic.json_schema import JsonSchemaValue
 from tenacity import (
     retry,
     retry_if_exception_type,
@@ -61,6 +64,11 @@ class OpenAIClient:
 
         logger.info("openai_client_initialized", model=model, reasoning_effort=reasoning_effort, test_mode=self.test_mode)
 
+        # Lightweight local embedding cache
+        self._embedding_cache_path = Path("data/cache/embeddings_cache.json")
+        self._embedding_cache: dict[str, list[float]] = {}
+        self._load_embedding_cache()
+
     @retry(
         stop=stop_after_attempt(3),
         wait=wait_exponential(multiplier=1, min=2, max=10),
@@ -107,65 +115,70 @@ class OpenAIClient:
         )
 
         try:
-            # Build JSON schema for response_format (Responses API)
+            # Build JSON schema for strict structured output (Responses API)
             schema = response_model.model_json_schema()
-            response_format = {
-                "type": "json_schema",
-                "json_schema": {
-                    "name": response_model.__name__,
-                    "schema": schema,
-                    "strict": True,
-                },
-            }
+            self._enforce_no_extra_properties(schema)
 
-            kwargs: dict[str, Any] = {
-                "model": model,
-                "input": input_text,
-                "response_format": response_format,
-                "metadata": metadata or {},
-            }
-            if reasoning_effort:
-                kwargs["reasoning"] = {"effort": reasoning_effort}
-            if max_output_tokens is not None:
-                kwargs["max_output_tokens"] = max_output_tokens
+            schema_hint = json.dumps(schema)
+            text_format = {"type": "json_object"}
 
-            response = await self.client.responses.create(**kwargs)
-
-            # Extract structured output
-            parsed_payload: Any | None = None
-            text_payload: str | None = None
-            if response.output:
-                for item in response.output:
-                    content_list = getattr(item, "content", None) or []
-                    for content in content_list:
-                        if parsed_payload is None:
-                            parsed_payload = getattr(content, "parsed", None)
-                        if text_payload is None:
-                            text_payload = getattr(content, "text", None)
-                        if parsed_payload is not None:
-                            break
-                    if parsed_payload is not None:
-                        break
-
-            if parsed_payload is not None:
-                parsed_output = response_model.model_validate(parsed_payload)
-            elif text_payload:
-                parsed_output = response_model.model_validate_json(text_payload)
+            # Normalize input into Responses API shape
+            # Ensure input contains a JSON directive so the API honors json_object formatting
+            if isinstance(input_text, str):
+                input_payload = [
+                    {
+                        "role": "system",
+                        "content": "Return a JSON object that follows the provided schema guidance.",
+                    },
+                    {"role": "user", "content": input_text},
+                ]
+            elif isinstance(input_text, list):
+                input_payload = [
+                    {
+                        "role": "system",
+                        "content": "Return a JSON object that follows the provided schema guidance.",
+                    }
+                ] + list(input_text)
             else:
-                raise ValueError("No output returned from Response API")
+                input_payload = input_text
 
-            # Extract usage stats
+            reasoning_payload = None  # Reasoning tokens can consume budget before output; disable by default
+
+            completion = await self.client.responses.create(
+                model=model,
+                input=input_payload,
+                instructions=(
+                "You are a structured extraction model. "
+                "Return ONLY a JSON object parsable by the target schema. "
+                "If data is unknown, use null or empty collections. "
+                "Keep text concise and limit lists to the top 5 items. "
+                f"Schema (JSON): {schema_hint}"
+            ),
+            max_output_tokens=max_output_tokens or 4096,
+            metadata=metadata or {},
+            reasoning=reasoning_payload,
+            text={"format": text_format},
+        )
+
+            output_text = self._extract_text_from_response(completion)
+            if not output_text:
+                raise ValueError("No text content returned from OpenAI response")
+
+            parsed_output = response_model.model_validate_json(output_text)
+
             usage_metadata = {
-                "tokens_total": response.usage.total_tokens if hasattr(response, 'usage') else 0,
-                "tokens_input": response.usage.input_tokens if hasattr(response, 'usage') else 0,
-                "tokens_output": response.usage.output_tokens if hasattr(response, 'usage') else 0,
-                "response_id": response.id,
-                "model": model,
+                "tokens_total": getattr(completion.usage, "total_tokens", 0),
+                "tokens_input": getattr(completion.usage, "input_tokens", 0)
+                or getattr(completion.usage, "prompt_tokens", 0),
+                "tokens_output": getattr(completion.usage, "output_tokens", 0)
+                or getattr(completion.usage, "completion_tokens", 0),
+                "response_id": getattr(completion, "id", None),
+                "model": getattr(completion, "model", model),
             }
 
             logger.info(
                 "response_created",
-                response_id=response.id,
+                response_id=getattr(completion, "id", None),
                 tokens_total=usage_metadata["tokens_total"],
             )
 
@@ -218,10 +231,18 @@ class OpenAIClient:
             if dimensions:
                 kwargs["dimensions"] = dimensions
 
+            cache_key = self._cache_key(text, model, dimensions)
+            if cache_key in self._embedding_cache:
+                embedding = self._embedding_cache[cache_key]
+                return embedding, {"tokens_used": 0, "model": model, "dimensions": len(embedding), "cached": True}
+
             response = await self.client.embeddings.create(**kwargs)
 
             # Extract embedding vector
             embedding = response.data[0].embedding
+            # store in cache
+            self._embedding_cache[cache_key] = embedding
+            self._persist_embedding_cache()
 
             # Extract usage metadata
             usage_metadata = {
@@ -276,7 +297,7 @@ class OpenAIClient:
                 "mock": True,
             }
 
-        all_embeddings = []
+        all_embeddings: list[list[float]] = []
         total_tokens = 0
 
         # Process in batches
@@ -288,14 +309,35 @@ class OpenAIClient:
                 if dimensions:
                     kwargs["dimensions"] = dimensions
 
-                response = await self.client.embeddings.create(**kwargs)
+                # Check cache and only call API for missing items
+                batch_embeddings: list[list[float]] = []
+                to_fetch_indices: list[int] = []
+                to_fetch_texts: list[str] = []
+                for idx, txt in enumerate(batch):
+                    key = self._cache_key(txt, model, dimensions)
+                    if key in self._embedding_cache:
+                        batch_embeddings.append(self._embedding_cache[key])
+                    else:
+                        to_fetch_indices.append(idx)
+                        to_fetch_texts.append(txt)
+                        batch_embeddings.append([])  # placeholder
 
-                # Extract embeddings
-                batch_embeddings = [item.embedding for item in response.data]
+                if to_fetch_texts:
+                    response = await self.client.embeddings.create(
+                        model=model,
+                        input=to_fetch_texts,
+                        **({"dimensions": dimensions} if dimensions else {}),
+                    )
+                    total_tokens += response.usage.total_tokens
+                    fetched = [item.embedding for item in response.data]
+                    for offset, embed in zip(to_fetch_indices, fetched):
+                        full_idx = offset
+                        batch_embeddings[full_idx] = embed
+                        key = self._cache_key(batch[full_idx], model, dimensions)
+                        self._embedding_cache[key] = embed
+                    self._persist_embedding_cache()
+
                 all_embeddings.extend(batch_embeddings)
-
-                # Track tokens
-                total_tokens += response.usage.total_tokens
 
                 logger.info(
                     "batch_embedded",
@@ -390,6 +432,84 @@ class OpenAIClient:
             return model_cls.model_validate(values)
         # fallback for non-pydantic
         return model_cls()  # type: ignore
+
+    @staticmethod
+    def _extract_text_from_response(response: Any) -> str:
+        """Extract concatenated text payload from a Responses API result."""
+        # Prefer helper if present
+        if hasattr(response, "output_text") and response.output_text:
+            return str(response.output_text)
+
+        texts: list[str] = []
+        for item in getattr(response, "output", []) or []:
+            for content in getattr(item, "content", []) or []:
+                text_val = getattr(content, "text", None)
+                if text_val:
+                    texts.append(str(text_val))
+        if not texts:
+            logger.error(
+                "empty_response_output",
+                status=getattr(response, "status", None),
+                output_preview=str(getattr(response, "output", None))[:500],
+                output_text=getattr(response, "output_text", None),
+            )
+        return "".join(texts).strip()
+
+    def _enforce_no_extra_properties(self, schema: JsonSchemaValue) -> None:
+        """Ensure JSON schema objects forbid additional properties (Responses API requirement)."""
+
+        def recurse(node: Any) -> None:
+            if isinstance(node, dict):
+                if "$ref" in node:
+                    # Responses API rejects sibling keywords alongside $ref
+                    for key in list(node.keys()):
+                        if key != "$ref":
+                            node.pop(key, None)
+                    return
+                if node.get("type") == "object":
+                    node.setdefault("additionalProperties", False)
+                    if node.get("properties"):
+                        node["required"] = sorted(node["properties"].keys())
+                    for prop in node.get("properties", {}).values():
+                        recurse(prop)
+                    if "items" in node:
+                        recurse(node["items"])
+                    for key in ("allOf", "anyOf", "oneOf"):
+                        if key in node and isinstance(node[key], list):
+                            for sub in node[key]:
+                                recurse(sub)
+                elif "items" in node:
+                    recurse(node["items"])
+                for value in node.values():
+                    recurse(value)
+            elif isinstance(node, list):
+                for item in node:
+                    recurse(item)
+
+        recurse(schema)
+
+    @staticmethod
+    def _supports_reasoning(model: str) -> bool:
+        """Return True if the model supports the Responses API reasoning block."""
+        normalized = model.lower()
+        return normalized.startswith("gpt-5") or normalized.startswith("o")
+
+    def _cache_key(self, text: str, model: str, dimensions: int | None) -> str:
+        return self.hash_input({"text": text, "model": model, "dimensions": dimensions or "full"})
+
+    def _load_embedding_cache(self) -> None:
+        try:
+            if self._embedding_cache_path.exists():
+                self._embedding_cache = json.loads(self._embedding_cache_path.read_text())
+        except Exception as exc:
+            logger.error("embedding_cache_load_failed", error=str(exc), path=str(self._embedding_cache_path))
+
+    def _persist_embedding_cache(self) -> None:
+        try:
+            self._embedding_cache_path.parent.mkdir(parents=True, exist_ok=True)
+            self._embedding_cache_path.write_text(json.dumps(self._embedding_cache))
+        except Exception as exc:
+            logger.error("embedding_cache_persist_failed", error=str(exc), path=str(self._embedding_cache_path))
 
 
 # Global client instance

@@ -92,6 +92,9 @@ class JobPipeline:
             # Step 8: Output Generation
             final_output = await self._process_output(job_id, ranked_list, bias_report, state)
 
+            # Step 9: Build KB summaries/embeddings (non-blocking on failure)
+            await self._maybe_ingest_kb(job_id)
+
             # Mark pipeline as completed
             await self._update_state(
                 state,
@@ -227,7 +230,7 @@ class JobPipeline:
         resume_dir: Path,
         state: PipelineState,
     ) -> list[ScoreCard]:
-        """Process all resumes through parse → extract → match → score pipeline."""
+        """Process all resumes through parse → (optional prefilter) → extract → match → score pipeline."""
         # Find all PDF files
         pdf_files = list(resume_dir.glob("*.pdf"))
         total_resumes = len(pdf_files)
@@ -247,31 +250,73 @@ class JobPipeline:
             metadata={"total_resumes": total_resumes},
         )
 
-        # Process resumes with concurrency limit
         semaphore = asyncio.Semaphore(self.max_concurrent)
+
+        async def parse_only(pdf_path: Path) -> tuple[str, ParsedResume | None]:
+            """Parse a single resume and return candidate_id + parsed object."""
+            candidate_id = f"{job_id}_{pdf_path.stem}"
+            async with semaphore:
+                try:
+                    parsed = await self._parse_resume(job_id, candidate_id, pdf_path)
+                    return candidate_id, parsed
+                except Exception as e:
+                    logger.exception(
+                        "resume_parsing_failed",
+                        job_id=job_id,
+                        pdf_path=str(pdf_path),
+                        error=str(e),
+                    )
+                    state.failed_resumes.append((str(pdf_path), str(e)))
+                    return candidate_id, None
+
+        # Phase 1: parse all resumes (IO-bound)
+        parsed_results = await asyncio.gather(*(parse_only(pdf) for pdf in pdf_files))
+        parsed_resumes = [(cid, pr) for cid, pr in parsed_results if pr is not None]
+
+        # Optional prefilter to reduce downstream LLM cost
+        keep_ids: set[str] | None = None
+        prefilter_cfg = self.context.config.get("prefilter", {})
+        if (
+            prefilter_cfg.get("enabled")
+            and prefilter_cfg.get("top_n", 0) > 0
+            and len(parsed_resumes) > prefilter_cfg.get("top_n", 0)
+        ):
+            try:
+                keep_ids = await self._prefilter_resumes(
+                    job_profile=job_profile,
+                    parsed_resumes=parsed_resumes,
+                    prefilter_cfg=prefilter_cfg,
+                )
+                excluded = {cid for cid, _ in parsed_resumes if cid not in keep_ids}
+                for cid in excluded:
+                    state.failed_resumes.append((cid, "prefilter_excluded"))
+                logger.info(
+                    "prefilter_applied",
+                    job_id=job_id,
+                    kept=len(keep_ids),
+                    excluded=len(excluded),
+                    total=len(parsed_resumes),
+                )
+            except Exception as exc:
+                logger.error(
+                    "prefilter_failed",
+                    job_id=job_id,
+                    error=str(exc),
+                    exc_info=True,
+                )
+
+        # Phase 2: run remaining pipeline steps on kept resumes
         scorecards: list[ScoreCard] = []
         processed_count = 0
 
-        async def process_resume(pdf_path: Path, index: int) -> ScoreCard | None:
+        async def process_parsed(candidate_id: str, parsed: ParsedResume) -> ScoreCard | None:
             nonlocal processed_count
-
             async with semaphore:
                 try:
-                    # Generate candidate ID from filename
-                    candidate_id = f"{job_id}_{pdf_path.stem}"
-
-                    # Step 2: Parse PDF
-                    parsed = await self._parse_resume(job_id, candidate_id, pdf_path)
-
-                    # Step 3: Extract skills
                     profile = await self._extract_skills(candidate_id, job_id, parsed, job_profile)
-
-                    # Step 4: Match to job
                     match_report = await self._match_candidate(
                         candidate_id, job_id, profile, job_profile
                     )
-
-                    # Step 5: Score candidate
                     scorecard = await self._score_candidate(
                         candidate_id, job_id, match_report, profile, job_profile
                     )
@@ -279,7 +324,6 @@ class JobPipeline:
                     processed_count += 1
                     state.completed_resumes.append(candidate_id)
 
-                    # Checkpoint every N resumes
                     if processed_count % self.checkpoint_interval == 0:
                         await self._update_state(
                             state,
@@ -306,23 +350,27 @@ class JobPipeline:
                     logger.exception(
                         "resume_processing_failed",
                         job_id=job_id,
-                        pdf_path=str(pdf_path),
+                        pdf_path=candidate_id,
                         error=str(e),
                     )
-                    state.failed_resumes.append((str(pdf_path), str(e)))
+                    state.failed_resumes.append((candidate_id, str(e)))
                     await self._update_state(
                         state,
                         metadata={"processed_count": processed_count},
                     )
                     return None
 
-        # Process all resumes concurrently
+        to_process = [
+            (cid, pr)
+            for cid, pr in parsed_resumes
+            if keep_ids is None or cid in keep_ids
+        ]
+
         results = await asyncio.gather(
-            *[process_resume(pdf, i) for i, pdf in enumerate(pdf_files)],
+            *(process_parsed(cid, pr) for cid, pr in to_process),
             return_exceptions=False,
         )
 
-        # Filter out None results (failed resumes)
         scorecards = [sc for sc in results if sc is not None]
 
         logger.info(
@@ -334,6 +382,47 @@ class JobPipeline:
         )
 
         return scorecards
+
+    async def _prefilter_resumes(
+        self,
+        job_profile: EnrichedJobProfile,
+        parsed_resumes: list[tuple[str, ParsedResume]],
+        prefilter_cfg: dict[str, Any],
+    ) -> set[str]:
+        """Prefilter resumes using embedding similarity to job description."""
+        from ..integrations.openai_client import get_openai_client
+        import math
+
+        client = get_openai_client(self.context.config)
+        emb_model = prefilter_cfg.get("embedding_model", "text-embedding-3-small")
+        batch_size = prefilter_cfg.get("embedding_batch_size", 100)
+        top_n = prefilter_cfg.get("top_n", 200)
+
+        job_vec, _ = await client.generate_embedding(job_profile.raw_description, model=emb_model)
+
+        texts = [pr.raw_text for _, pr in parsed_resumes]
+        resume_ids = [cid for cid, _ in parsed_resumes]
+
+        embeddings, _ = await client.generate_embeddings_batch(
+            texts, model=emb_model, batch_size=batch_size
+        )
+
+        def cosine(a: list[float], b: list[float]) -> float:
+            dot = sum(x * y for x, y in zip(a, b))
+            na = math.sqrt(sum(x * x for x in a))
+            nb = math.sqrt(sum(y * y for y in b))
+            if na == 0 or nb == 0:
+                return 0.0
+            return dot / (na * nb)
+
+        scored = [
+            (cid, cosine(job_vec, emb))
+            for cid, emb in zip(resume_ids, embeddings)
+        ]
+        scored.sort(key=lambda x: x[1], reverse=True)
+
+        keep = {cid for cid, _ in scored[:top_n]}
+        return keep
 
     async def _parse_resume(self, job_id: str, candidate_id: str, pdf_path: Path) -> ParsedResume:
         """Parse PDF resume."""
@@ -500,3 +589,39 @@ class JobPipeline:
         output_path.write_text(result.data.model_dump_json(indent=2), encoding="utf-8")
         logger.info("stage_completed", stage="output", job_id=job_id)
         return result.data
+
+    async def _maybe_ingest_kb(self, job_id: str) -> None:
+        """Optionally ingest candidates into the KB (summaries + embeddings)."""
+        kb_cfg = self.context.config.get("kb", {})
+        auto_ingest = kb_cfg.get("auto_ingest", True)
+        if not auto_ingest:
+            logger.info("kb_ingestion_skipped", job_id=job_id)
+            return
+
+        batch_size = kb_cfg.get("batch_size", 50)
+
+        try:
+            from ...kb.ingestion.pipeline import KnowledgeBaseIngestionPipeline
+
+            ingestion = KnowledgeBaseIngestionPipeline(
+                store=self.store,
+                skip_if_exists=True,
+            )
+            result = await ingestion.ingest_all_candidates(job_id=job_id, batch_size=batch_size)
+            logger.info(
+                "kb_ingestion_completed",
+                job_id=job_id,
+                processed=result.candidates_processed,
+                failed=result.candidates_failed,
+                cost=result.total_cost,
+                tokens=result.total_tokens,
+                duration_seconds=result.duration_seconds,
+            )
+        except Exception as exc:
+            # Do not fail the main pipeline on KB issues
+            logger.error(
+                "kb_ingestion_failed",
+                job_id=job_id,
+                error=str(exc),
+                exc_info=True,
+            )

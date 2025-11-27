@@ -106,7 +106,7 @@ Extract:
    - Assign confidence (0.0-1.0)
    - Estimate years of experience based on job durations
    - Determine last used date (most recent job mentioning it)
-   - Provide evidence: specific bullet points or sections mentioning the skill
+   - Provide evidence: specific bullet points or sections mentioning the skill (≤20 words)
 
 2. **Skills categorization**:
    - Match to job requirements where possible
@@ -125,4 +125,8 @@ Extract:
    - Identify employment gaps (> 6 months with no job listed)
    - Flag quality issues (overlapping jobs, inconsistent dates)
 
-Prioritize skills relevant to the job requirements."""
+Prioritize skills relevant to the job requirements. Keep output concise:
+- Max 25 skills total (prioritize job-relevant).
+- Evidence snippets ≤20 words.
+- Use null/empty lists when unknown.
+- Ensure well-formed JSON that matches the schema and fits comfortably within the token limit."""

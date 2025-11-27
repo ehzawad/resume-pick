@@ -53,6 +53,18 @@ class ResumeSummarizer:
             candidate_id=candidate_profile.candidate_id,
         )
 
+        # Fast path for test/offline mode
+        if getattr(self.openai_client, "test_mode", False):
+            summary = CandidateSummary(
+                summary_text="Mock candidate summary",
+                key_skills=[s.skill_name for s in candidate_profile.skills[:5]],
+                experience_highlights=[],
+                domain_expertise=[],
+                years_experience=candidate_profile.total_years_experience,
+                education_summary=None,
+            )
+            return summary, {"tokens_total": 0, "mock": True}
+
         # Build prompt from available data
         prompt = self._build_summary_prompt(candidate_profile, parsed_resume)
 
