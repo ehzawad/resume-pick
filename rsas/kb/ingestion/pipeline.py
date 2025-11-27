@@ -194,7 +194,7 @@ class KnowledgeBaseIngestionPipeline:
             )
 
             return IngestionResult(
-                success=failed < total_candidates,  # Success if at least one succeeded
+                success=failed == 0,  # Success only if no failures occurred
                 candidates_processed=processed,
                 candidates_failed=failed,
                 total_cost=total_cost,

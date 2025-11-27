@@ -98,8 +98,25 @@ def process(
     console.print(f"[dim]Job description:[/dim] {job_description}")
     console.print(f"[dim]Resumes directory:[/dim] {resumes_dir}")
 
-    # Load job description
-    jd_text = job_description.read_text(encoding="utf-8")
+    # Validate inputs
+    if limit_resumes is not None and limit_resumes <= 0:
+        console.print("[red]! Error:[/red] --limit-resumes must be greater than 0")
+        raise typer.Exit(code=1)
+
+    # Check that resume directory is not empty
+    pdf_files = list(resumes_dir.glob("*.pdf"))
+    if not pdf_files:
+        console.print(f"[red]! Error:[/red] No PDF files found in {resumes_dir}")
+        raise typer.Exit(code=1)
+
+    console.print(f"[dim]Found {len(pdf_files)} PDF files[/dim]")
+
+    # Load job description with error handling
+    try:
+        jd_text = job_description.read_text(encoding="utf-8")
+    except (IOError, UnicodeDecodeError) as e:
+        console.print(f"[red]! Error reading job description:[/red] {e}")
+        raise typer.Exit(code=1)
 
     # Initialize components
     store = _get_store()
@@ -118,7 +135,7 @@ def process(
 
     # Display results
     if result.success:
-        console.print("\n[bold green]✓ Pipeline completed successfully![/bold green]")
+        console.print("\n[green]> Pipeline completed successfully![/green]")
 
         # Display summary
         output = result.output
@@ -134,11 +151,15 @@ def process(
         table.add_column("Summary")
 
         for candidate in output.top_candidates_summary:
+            # Cache summary to avoid multiple lookups
+            summary = candidate.get("summary", "")
+            summary_display = summary[:60] + "..." if len(summary) > 60 else summary
+
             table.add_row(
                 str(candidate.get("rank", "N/A")),
                 candidate.get("name", "Unknown"),
                 str(candidate.get("score", "N/A")),
-                candidate.get("summary", "")[:60] + "..." if len(candidate.get("summary", "")) > 60 else candidate.get("summary", ""),
+                summary_display,
             )
 
         console.print(table)
@@ -153,11 +174,16 @@ def process(
                 "recruiter_notes": output.recruiter_notes,
                 "stats": result.stats,
             }
-            output_file.write_text(json.dumps(output_data, indent=2), encoding="utf-8")
-            console.print(f"\n[green]Output saved to:[/green] {output_file}")
+            try:
+                # Create parent directory if it doesn't exist
+                output_file.parent.mkdir(parents=True, exist_ok=True)
+                output_file.write_text(json.dumps(output_data, indent=2), encoding="utf-8")
+                console.print(f"\n[green]Output saved to:[/green] {output_file}")
+            except (IOError, TypeError) as e:
+                console.print(f"\n[red]! Error saving output:[/red] {e}")
 
     else:
-        console.print(f"\n[bold red]✗ Pipeline failed:[/bold red] {result.error}")
+        console.print(f"\n[red]! Pipeline failed:[/red] {result.error}")
         raise typer.Exit(code=1)
 
 
@@ -243,6 +269,11 @@ def ranking(
     ] = None,
 ):
     """Display candidate rankings for a job."""
+    # Validate inputs
+    if top_n <= 0:
+        console.print("[red]! Error:[/red] --top-n must be greater than 0")
+        raise typer.Exit(code=1)
+
     console.print(f"\n[bold blue]Rankings for job:[/bold blue] {job_id}")
 
     store = _get_store()
@@ -302,31 +333,37 @@ def ranking(
     if export:
         import csv
 
-        with export.open("w", newline="") as f:
-            writer = csv.writer(f)
-            writer.writerow(["Rank", "Candidate ID", "Total Score", "Must-Have Coverage", "Confidence"])
+        try:
+            # Create parent directory if it doesn't exist
+            export.parent.mkdir(parents=True, exist_ok=True)
 
-            for rank, entry in enumerate(display_list, start=1):
-                if hasattr(entry, "candidate_id"):
-                    cand_id = entry.candidate_id
-                    total_score = entry.total_score
-                    must_have = entry.must_have_coverage if hasattr(entry, "must_have_coverage") else 0
-                    confidence = entry.confidence if hasattr(entry, "confidence") else 0
-                else:
-                    cand_id = entry.get("candidate_id")
-                    total_score = entry.get("total_score", 0)
-                    must_have = entry.get("must_have_coverage", 0)
-                    confidence = entry.get("confidence", 0)
+            with export.open("w", newline="") as f:
+                writer = csv.writer(f)
+                writer.writerow(["Rank", "Candidate ID", "Total Score", "Must-Have Coverage", "Confidence"])
 
-                writer.writerow([
-                    rank,
-                    cand_id,
-                    f"{total_score:.1f}",
-                    f"{must_have:.1%}",
-                    f"{confidence:.2f}",
-                ])
+                for rank, entry in enumerate(display_list, start=1):
+                    if hasattr(entry, "candidate_id"):
+                        cand_id = entry.candidate_id
+                        total_score = entry.total_score
+                        must_have = entry.must_have_coverage if hasattr(entry, "must_have_coverage") else 0
+                        confidence = entry.confidence if hasattr(entry, "confidence") else 0
+                    else:
+                        cand_id = entry.get("candidate_id")
+                        total_score = entry.get("total_score", 0)
+                        must_have = entry.get("must_have_coverage", 0)
+                        confidence = entry.get("confidence", 0)
 
-        console.print(f"\n[green]Rankings exported to:[/green] {export}")
+                    writer.writerow([
+                        rank,
+                        cand_id,
+                        f"{total_score:.1f}",
+                        f"{must_have:.1%}",
+                        f"{confidence:.2f}",
+                    ])
+
+            console.print(f"\n[green]Rankings exported to:[/green] {export}")
+        except (IOError, ValueError) as e:
+            console.print(f"\n[red]! Error exporting rankings:[/red] {e}")
 
 
 @app.command()
@@ -335,7 +372,7 @@ def init_db():
     console.print("[bold blue]Initializing object store...[/bold blue]")
     store = _get_store()
     store.base_dir.mkdir(parents=True, exist_ok=True)
-    console.print("[green]✓ Object store ready at[/green] ", store.base_dir)
+    console.print("[green]Object store ready at[/green] ", store.base_dir)
 
 
 @app.command()
@@ -354,7 +391,8 @@ def search(
         from ..kb.storage.chroma_client import get_chroma_client
 
         chroma_client = get_chroma_client(mode="memory")
-    except Exception:
+    except Exception as e:
+        logger.warning("chroma_init_failed", error=str(e))
         chroma_client = None
 
     service = SearchService(store=store, chroma_client=chroma_client)

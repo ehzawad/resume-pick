@@ -40,7 +40,9 @@ class RankingAgent(BaseAgent[RankingInput, RankedList]):
             total = len(sorted_cards)
             for idx, sc in enumerate(sorted_cards, start=1):
                 if total > 1:
-                    pct = round(100 * (total - idx) / (total - 1))
+                    # Use int() to floor the percentile to avoid rounding errors
+                    # that cause candidates near thresholds to be incorrectly tiered
+                    pct = int(100 * (total - idx) / (total - 1))
                 else:
                     pct = 100
 
@@ -102,7 +104,9 @@ class RankingAgent(BaseAgent[RankingInput, RankedList]):
             rankings: list[RankedCandidate] = []
             for idx, sc in enumerate(sorted_cards, start=1):
                 if total > 1:
-                    pct = round(100 * (total - idx) / (total - 1))
+                    # Use int() to floor the percentile to avoid rounding errors
+                    # that cause candidates near thresholds to be incorrectly tiered
+                    pct = int(100 * (total - idx) / (total - 1))
                 else:
                     pct = 100
                 if pct >= 90:

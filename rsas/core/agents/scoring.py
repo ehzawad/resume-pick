@@ -76,7 +76,12 @@ class ScoringAgent(BaseAgent[ScoringInput, ScoreCard]):
         )
 
     def _build_prompt(self, input_data: ScoringInput, context: AgentContext) -> str:
-        """Build scoring prompt."""
+        """Build scoring prompt.
+
+        Note: Scoring weights from config are applied by the LLM following prompt instructions.
+        The LLM computes dimension scores (0-100) and then calculates the weighted average
+        using the weights specified in the prompt. This is by design for LLM-based scoring.
+        """
         weights = context.config.get("agents", {}).get("scoring", {}).get("weights", {})
 
         return f"""Compute a detailed scorecard for this candidate using multi-dimensional scoring.

@@ -1,6 +1,6 @@
 """Cost tracking utilities for budget monitoring and analytics (file-based)."""
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -51,7 +51,7 @@ class CostTracker:
             "model_used": model_used,
             "search_query_id": search_query_id,
             "metadata": metadata or {},
-            "created_at": datetime.utcnow().isoformat(),
+            "created_at": datetime.now(timezone.utc).isoformat(),
         }
         rows = self._read()
         rows.append(entry)
@@ -81,11 +81,11 @@ class CostTracker:
         return total
 
     async def get_daily_cost(self) -> float:
-        today = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+        today = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
         return await self.get_total_cost(since=today)
 
     async def get_monthly_cost(self) -> float:
-        month_start = datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        month_start = datetime.now(timezone.utc).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
         return await self.get_total_cost(since=month_start)
 
     async def get_cost_breakdown(self, since: datetime | None = None) -> dict[str, float]:

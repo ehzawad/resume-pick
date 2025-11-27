@@ -30,26 +30,26 @@ async def main():
     print("\n[1/6] Loading configuration...")
     config = load_config()
     store_dir = config.get("storage", {}).get("object_store_dir", "data/processed")
-    print(f"✓ Object store: {store_dir}")
+    print(f"Object store: {store_dir}")
 
     # 2. Initialize object store
     print("\n[2/6] Initializing object store...")
     store = ObjectStore(store_dir)
-    print("✓ Object store ready")
+    print("Object store ready")
 
     # 3. Initialize OpenAI client
     print("\n[3/6] Initializing OpenAI client...")
     openai_client = OpenAIClient(model="gpt-5.1")  # Use gpt-5.1 for summaries
-    print("✓ OpenAI client ready")
+    print("OpenAI client ready")
 
     # 4. Initialize ChromaDB (in-memory for testing)
     print("\n[4/6] Initializing ChromaDB...")
     try:
         chroma_client = get_chroma_client(mode="memory")
-        print(f"✓ ChromaDB ready (in-memory mode)")
+        print(f"ChromaDB ready (in-memory mode)")
         print(f"  Collection count: {chroma_client.count()}")
     except ImportError:
-        print("⚠ ChromaDB not available - will skip vector storage")
+        print("WARNING: ChromaDB not available - will skip vector storage")
         print("  Install with: pip install chromadb")
         chroma_client = None
 
@@ -61,7 +61,7 @@ async def main():
         chroma_client=chroma_client,
         skip_if_exists=True,  # Skip already ingested candidates
     )
-    print("✓ Pipeline ready")
+    print("Pipeline ready")
 
     # 6. Run ingestion
     print("\n[6/6] Running ingestion...")
@@ -75,15 +75,15 @@ async def main():
 
         print("-" * 60)
         print("\nINGESTION RESULTS:")
-        print(f"  ✓ Success: {result.success}")
-        print(f"  📊 Candidates processed: {result.candidates_processed}")
-        print(f"  ❌ Candidates failed: {result.candidates_failed}")
-        print(f"  💰 Total cost: ${result.total_cost:.4f}")
-        print(f"  🎫 Total tokens: {result.total_tokens:,}")
-        print(f"  ⏱ Duration: {result.duration_seconds:.1f}s")
+        print(f"  Success: {result.success}")
+        print(f"  Candidates processed: {result.candidates_processed}")
+        print(f"  Candidates failed: {result.candidates_failed}")
+        print(f"  Total cost: ${result.total_cost:.4f}")
+        print(f"  Total tokens: {result.total_tokens:,}")
+        print(f"  Duration: {result.duration_seconds:.1f}s")
 
         if result.errors:
-            print(f"\n⚠ Errors ({len(result.errors)}):")
+            print(f"\nERRORS ({len(result.errors)}):")
             for error in result.errors[:5]:  # Show first 5 errors
                 print(f"  - {error}")
             if len(result.errors) > 5:
@@ -92,11 +92,11 @@ async def main():
         # Show ChromaDB stats if available
         if chroma_client:
             count = chroma_client.count()
-            print(f"\n📦 ChromaDB stats:")
+            print(f"\nChromaDB stats:")
             print(f"  Total embeddings: {count}")
 
     except Exception as e:
-        print(f"\n❌ Ingestion failed: {str(e)}")
+        print(f"\nIngestion failed: {str(e)}")
         import traceback
         traceback.print_exc()
         return 1

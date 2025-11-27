@@ -7,8 +7,12 @@ from typing import Any
 import yaml
 from dotenv import load_dotenv
 
+from ...observability.logger import get_logger
+
 # Load environment variables from .env file
 load_dotenv()
+
+logger = get_logger(__name__)
 
 
 class ConfigLoader:
@@ -146,7 +150,14 @@ class ConfigLoader:
             if key not in current:
                 current[key] = {}
             elif not isinstance(current[key], dict):
-                # Can't traverse non-dict
+                # Can't traverse non-dict - log warning and return
+                env_var_name = "RSAS_" + "_".join(path).upper()
+                logger.warning(
+                    "config_override_failed",
+                    env_var=env_var_name,
+                    path=".".join(path),
+                    reason=f"Cannot override: '{key}' is not a dictionary",
+                )
                 return
             current = current[key]
 

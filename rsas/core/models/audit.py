@@ -1,5 +1,6 @@
 """Audit models for tracing, logging, and checkpoint management (Pydantic only)."""
 
+from datetime import datetime
 from typing import Any
 
 from pydantic import Field
@@ -62,8 +63,8 @@ class PipelineState(IdentifiedSchema, TimestampSchema, VersionedSchema):
     )
 
     # Timing
-    started_at: Any = Field(..., description="Pipeline start time")
-    last_checkpoint_at: Any | None = Field(None, description="Last checkpoint time")
+    started_at: datetime = Field(..., description="Pipeline start time")
+    last_checkpoint_at: datetime | None = Field(None, description="Last checkpoint time")
 
     # Metadata
     metadata: dict[str, Any] = Field(default_factory=dict, description="Additional metadata")

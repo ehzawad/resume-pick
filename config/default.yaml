@@ -78,13 +78,9 @@ agents:
 
   output:
     enabled: true
-    formats:
-      - "json"
-      - "excel"
-      - "csv"
+    format: "json"  # Only JSON output is currently implemented
     include_justifications: true
     include_evidence: true
-    redact_pii: false  # Set true for production
 
 # Pipeline Configuration
 pipeline:
@@ -99,8 +95,7 @@ pipeline:
 prefilter:
   enabled: false          # Enable to prefilter parsed resumes before LLM steps
   top_n: 1000             # Keep top N most relevant resumes
-  embedding_model: "text-embedding-3-small"
-  embedding_batch_size: 100
+  # Note: Embedding model is hardcoded in openai_client.py
 
 # Knowledge Base (summaries + embeddings) after pipeline
 kb:
@@ -116,16 +111,12 @@ storage:
     mode: "persistent"          # memory or persistent
     persist_directory: "data/vector/chroma"
 
-# PII Configuration
-pii:
-  redact: false  # Redact PII in logs and traces
-  fields:
-    - "name"
-    - "email"
-    - "phone"
-    - "address"
-  anonymize: false  # Hash PII fields
-  retention_days: 90  # Delete after 90 days
+# PII Configuration (not currently implemented)
+# pii:
+#   redact: false  # Redact PII in logs and traces
+#   fields: ["name", "email", "phone", "address"]
+#   anonymize: false  # Hash PII fields
+#   retention_days: 90  # Delete after 90 days
 
 # Observability
 observability:

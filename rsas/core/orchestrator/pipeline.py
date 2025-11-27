@@ -85,6 +85,17 @@ class JobPipeline:
                 job_id, job_profile, resume_dir, state, resume_limit
             )
 
+            # Check error threshold
+            error_threshold = self.context.config.get("pipeline", {}).get("error_threshold", 0.1)
+            total_processed = len(scorecards) + len(state.failed_resumes)
+            if total_processed > 0:
+                failure_rate = len(state.failed_resumes) / total_processed
+                if failure_rate > error_threshold:
+                    raise RuntimeError(
+                        f"Pipeline failed: {len(state.failed_resumes)}/{total_processed} resumes failed "
+                        f"({failure_rate:.1%}), exceeding threshold of {error_threshold:.1%}"
+                    )
+
             # Step 6: Ranking
             ranked_list = await self._process_ranking(job_id, scorecards, state)
 
