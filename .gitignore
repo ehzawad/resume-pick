@@ -1,24 +1,46 @@
-# Database files
-database/
-*.db
-*.sqlite
-
-# Processed data
-data/processed/
-data/tmp/
-
-# Logs
-logs/
-*.log
-
-# Environment
+# Environment variables (CRITICAL - Protects API keys)
 .env
-venv/
+.env.local
+.env.*.local
+
+# Python
 *.pyc
 __pycache__/
 *.py[cod]
 *$py.class
 .Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# Database files
+database/
+*.db
+*.sqlite
+
+# Processed data (large files - generated outputs)
+data/processed/
+data/tmp/
+data/cache/
+
+# Vector database (embeddings)
+data/vector/
+
+# Results and outputs
+results/
+*.csv
+*.json
+!config/*.json
+!config/**/*.json
+!package.json
+!tsconfig.json
+
+# Logs
+logs/
+*.log
 
 # Distribution / packaging
 build/
@@ -42,6 +64,7 @@ wheels/
 .coverage
 htmlcov/
 .tox/
+.hypothesis/
 
 # IDE
 .vscode/
@@ -49,10 +72,22 @@ htmlcov/
 *.swp
 *.swo
 *~
+.DS_Store
 
 # OS-generated files
 .DS_Store
 Thumbs.db
 
-# Local caches
-data/cache/
+# Secrets and credentials
+**/secrets/
+**/credentials/
+*.key
+*.pem
+*.p12
+*.pfx
+*.cer
+*.crt
+
+# Local configuration overrides
+config/local.yaml
+config/secrets.yaml

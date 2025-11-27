@@ -43,8 +43,38 @@ unset RSAS_TEST_MODE            # ensure live calls
   - `pipeline.idempotency`: true (traces cached per job + content hash)
 - Env overrides: any `RSAS_*` path, e.g. `RSAS_OPENAI_MODEL`, `RSAS_PIPELINE_MAX_CONCURRENT_RESUMES`.
 
+## Security
+
+### API Key Protection
+**CRITICAL:** Never commit your OpenAI API key to the repository!
+
+**Protected files (in `.gitignore`):**
+- `.env` - Environment variables (contains `OPENAI_API_KEY`)
+- `.env.local`, `.env.*.local` - Local environment overrides
+- `config/local.yaml`, `config/secrets.yaml` - Local config overrides
+- `*.key`, `*.pem`, credentials files
+
+**Best Practices:**
+1. Copy `.env.example` to `.env` and add your API key:
+   ```bash
+   cp .env.example .env
+   # Edit .env and set: OPENAI_API_KEY=sk-...
+   ```
+2. Always use environment variables (`OPENAI_API_KEY`), never hardcode keys
+3. Before committing, verify no keys exposed:
+   ```bash
+   grep -r "sk-" . --exclude-dir=.git
+   git diff --staged | grep "sk-"
+   ```
+4. The config uses `api_key_env: "OPENAI_API_KEY"` to reference the env var safely
+
+**If you accidentally commit a key:**
+1. Revoke it immediately at https://platform.openai.com/api-keys
+2. Generate a new key
+3. Use `git filter-branch` or BFG Repo-Cleaner to remove from history
+
 ## Data & caching
-- Resumes: place PDFs in `resumesets/` (currently 50 valid files).
+- Resumes: place PDFs in `resumesets/` (currently 47 valid files after removing 3 failed ones).
 - Object store layout: `data/processed/<job_id>/...` (parsed resumes, profiles, scorecards, rankings, traces, KB).
 - Content-hash-aware parsing: unchanged PDFs reuse cached outputs even if renamed.
 - To force a fresh run: use a new `job_id` or delete `data/processed/<job_id>/`.
